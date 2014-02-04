@@ -1,4 +1,4 @@
-util
-====
+mdr
+===
 
 package of go utility functions

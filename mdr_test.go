@@ -14,8 +14,7 @@ import (
 	"time"
 )
 
-// Template, call t.Errorf with reason for failure
-// BUG(mdr): what's diff between Errorf and Fatalf ?
+// template
 func Test_000(t *testing.T) {
 	fmt.Printf("Test_000 \n")
 	if false {
@@ -91,8 +90,8 @@ func Test_002(t *testing.T) {
 	fmt.Printf("Pass - test 002\n")
 	return
 	// exceeds maximum duration of 290 years
-	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	//tsec *= 10
+	//fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 }
 
 func Test_003(t *testing.T) {

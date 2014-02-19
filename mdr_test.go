@@ -330,7 +330,60 @@ func Test_014(t *testing.T) {
 	fmt.Printf("%x\n", b)
 }
 
+func Test_015(t *testing.T) {
+	fmt.Printf("\nTest_015 ValidDecString Test\n")
+	
+	if !ValidDecString("0123456789") {
+		t.Errorf("failed on 0123456789\n")
+		return
+	}
+	if ValidHexString("abcdefg0123456789") {
+		t.Errorf("failed on abcdefg0123456789\n")
+		return
+	}
+	fmt.Printf("Pass - test 015\n")
+	
+}
+
+func Test_016(t *testing.T) {
+	fmt.Printf("\nTest_016 \n")
+	
+	i,err := FileUID("mdr_test.go")
+		if i != 1001 || err != nil {
+		t.Errorf("failed on FileUID(mdr_test.go) \n")
+		return
+	}
+	i,err = FileGID("mdr_test.go") 
+		if i != 1001 || err != nil {
+		t.Errorf("failed on FileGID(mdr_test.go) \n")
+		return
+	}
+	fmt.Printf("Pass - test 016\n")
+	
+}
+
+/*
+func Test_000(t *testing.T) {
+	fmt.Printf("Test_000 \n")
+	if false {
+		t.Errorf("print fail, but keep testing")
+	}
+	if false {
+		t.Fatalf("print fail and keep testing")
+	}
+	fmt.Printf("go test -bench=\"*.\" to run all benchmarks\n")
+	fmt.Printf("Pass - test 000\n")
+}
+*/
+
 /////////////////////////  B E N C H M A R K S  ////////////////////////////
+/*  4 GHz AMD-64  8120 8 core
+Benchmark_PseudoRandomBlock-8	      50	  36,471,550 ns/op
+Benchmark_FileLength-8	         1000000	       1,531 ns/op
+Benchmark_BufSHA256-8	             200	  13,853,744 ns/op
+Benchmark_BufMD5-8	                1000	   1,370,967 ns/op
+Benchmark_BufCRC64-8	             500	   3,192,160 ns/op
+*/
 
 // 46.9e6 ns/op on 4Ghz AMD64 with 1.0.3
 // 36.6e6 ns/op on 4Ghz AMD64 with 1.1 << 22% better >>
@@ -367,6 +420,14 @@ func Benchmark_BufSHA256(b *testing.B) {
 		_ = BufSHA256(testBuf)
 	}
 }
+
+func Benchmark_BufMD5(b *testing.B) {
+	testBuf := PseudoRandomBlock(1024 * 1024)
+	for i := 0; i < b.N; i++ {
+		_ = BufMD5(testBuf)
+	}
+}
+
 
 // 2.71e6 ns/op on 4Ghz AMD64 with 1.0.3
 // 3.25e6 ns/op on 4Ghz AMD64 with 1.1  << 18% worse >>

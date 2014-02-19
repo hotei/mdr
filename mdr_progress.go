@@ -2,6 +2,7 @@ package mdr
 
 import (
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -23,10 +24,14 @@ func Spinner() {
 //  see example from mdr_test.go for usage
 //  see also Spinner() if endpoint of progress is unknown/unknowable
 func ProgressBar(barWidth int, p chan int64, alldone int64) {
+	if alldone <= 0 {
+		log.Fatalf("nothing to do - alldone[%d] is <= 0\n",alldone)
+	}
 	fmt.Fprintf(os.Stderr, "Progress bar:\n")
-	bar := "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	nobar := "...................................................................."
+	bar   := "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	nobar := "....................................................................."
 	barlen := 0
+	if barWidth > len(bar) { barWidth = len(bar) }
 	s := bar[:barlen] + nobar[:barWidth-barlen]
 	lastBarlen := 0
 	fmt.Fprintf(os.Stderr, "%s\r", s)

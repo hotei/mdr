@@ -10,7 +10,7 @@ import (
 // these would normally be C static vars
 var (
 	spinCt int8
-	lastCall time.time
+	lastCall time.Time
 	)
 const spinchars string = "|/-\\|/-\\ "
 

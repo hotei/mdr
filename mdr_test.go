@@ -332,7 +332,7 @@ func Test_014(t *testing.T) {
 
 func Test_015(t *testing.T) {
 	fmt.Printf("\nTest_015 ValidDecString Test\n")
-	
+
 	if !ValidDecString("0123456789") {
 		t.Errorf("failed on 0123456789\n")
 		return
@@ -342,24 +342,24 @@ func Test_015(t *testing.T) {
 		return
 	}
 	fmt.Printf("Pass - test 015\n")
-	
+
 }
 
 func Test_016(t *testing.T) {
 	fmt.Printf("\nTest_016 \n")
-	
-	i,err := FileUID("mdr_test.go")
-		if i != 1001 || err != nil {
+
+	i, err := FileUID("mdr_test.go")
+	if i != 1001 || err != nil {
 		t.Errorf("failed on FileUID(mdr_test.go) \n")
 		return
 	}
-	i,err = FileGID("mdr_test.go") 
-		if i != 1001 || err != nil {
+	i, err = FileGID("mdr_test.go")
+	if i != 1001 || err != nil {
 		t.Errorf("failed on FileGID(mdr_test.go) \n")
 		return
 	}
 	fmt.Printf("Pass - test 016\n")
-	
+
 }
 
 /*
@@ -427,7 +427,6 @@ func Benchmark_BufMD5(b *testing.B) {
 		_ = BufMD5(testBuf)
 	}
 }
-
 
 // 2.71e6 ns/op on 4Ghz AMD64 with 1.0.3
 // 3.25e6 ns/op on 4Ghz AMD64 with 1.1  << 18% worse >>

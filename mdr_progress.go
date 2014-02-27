@@ -9,9 +9,10 @@ import (
 
 // these would normally be C static vars
 var (
-	spinCt int8
+	spinCt   int8
 	lastCall time.Time
-	)
+)
+
 const spinchars string = "|/-\\|/-\\ "
 
 // keep user entertained while something happens behind the curtain
@@ -19,8 +20,8 @@ const spinchars string = "|/-\\|/-\\ "
 //  Choose this if progress bar can't be used because endpoint not known
 func Spinner() {
 	now := time.Now()
-	if now.Sub(lastCall) < (time.Millisecond * 100) { 
-		return	
+	if now.Sub(lastCall) < (time.Millisecond * 100) {
+		return
 	}
 	lastCall = now
 	fmt.Fprintf(os.Stderr, "%s\r", spinchars[spinCt:spinCt+1])

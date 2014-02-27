@@ -159,6 +159,15 @@ type Rec256 struct {
 	SHA, Date, Name string
 }
 
+func (r Rec256) Dump() {
+	fmt.Printf("%12d | %64s | %s | %s \n",
+		r.Size,
+		r.SHA,
+		r.Date,
+		r.Name)	
+}
+
+
 func Split256(line string) (Rec256, error) {
 	var rec Rec256
 	var err error

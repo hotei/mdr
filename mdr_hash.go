@@ -152,10 +152,10 @@ func FileSHA256(fname string) (string, error) {
 	return string(rv), nil
 }
 
-var 	CantCreateRec = errors.New("mdr: cant create Rec256 ")
+var CantCreateRec = errors.New("mdr: cant create Rec256 ")
 
 type Rec256 struct {
-	Size             int64
+	Size            int64
 	SHA, Date, Name string
 }
 
@@ -164,9 +164,8 @@ func (r Rec256) Dump() {
 		r.Size,
 		r.SHA,
 		r.Date,
-		r.Name)	
+		r.Name)
 }
-
 
 func Split256(line string) (Rec256, error) {
 	var rec Rec256

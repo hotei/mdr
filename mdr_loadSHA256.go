@@ -1,4 +1,4 @@
-// loadSHA256.go (c) 2014 David Rook - all rights reserved 
+// loadSHA256.go (c) 2014 David Rook - all rights reserved
 
 package mdr
 
@@ -80,9 +80,9 @@ func LoadSHA256asMap(fname string) (map[string]string, error) {
 }
 
 // LoadSHA256asDirMap returns *dirMap[directoryPath]*DirNode
-//  uses scanner to allow large file.256 to be used as input 
+//  uses scanner to allow large file.256 to be used as input
 // Used when its necessary to compute something with directory as input
-func LoadSHA256asDirMap(fname string) (map[string]*DirNode,error) {
+func LoadSHA256asDirMap(fname string) (map[string]*DirNode, error) {
 	var dirMap = make(map[string]*DirNode, 10000)
 	fmt.Printf("Loading SHA256 list from %s may take a while...\n", fname)
 	input, err := os.Open(fname)

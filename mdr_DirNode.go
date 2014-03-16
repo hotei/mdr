@@ -4,16 +4,18 @@ package mdr
 
 import (
 	// standard lib go 1.2 pkgs
+	"crypto/sha256"
 	"fmt"
+	"hash"
 	"log"
 	"os"
 	"sort"
 )
 
 const (
-	paranoid = false
+	paranoid      = false
 	G_datetimeFmt = "2006-01-02:15_04_05"
-	)
+)
 
 type FileRec struct {
 	R Rec256
@@ -30,6 +32,8 @@ type DirNode struct {
 	Pathname       string
 	IsSortedByName bool
 	Files          []FileRec
+	Size           int64
+	SHA256         string
 }
 
 type ByName []FileRec
@@ -38,7 +42,30 @@ func (a ByName) Len() int           { return len(a) }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByName) Less(i, j int) bool { return a[i].R.Name < a[j].R.Name }
 
-// add given filerec to the directory node
+// Finalize computes the total size and SHA256 of the leaf
+func (d *DirNode) Finalize() (string, int64) {
+	d.Size = 0
+	d.SortFilesByName()
+	var h hash.Hash = sha256.New()
+	for i := 0; i < len(d.Files); i++ {
+		d.Size += d.Files[i].R.Size
+		h.Write([]byte(d.Files[i].R.SHA))
+	}
+	digest := h.Sum(nil)
+	rv := ""
+	for _, hex := range digest {
+		rv = rv + fmt.Sprintf("%02x", hex)
+	}
+	d.SHA256 = rv
+	return rv, d.Size
+}
+
+func (d *DirNode) UnTouchAll() {
+	for i := 0; i < len(d.Files); i++ {
+		d.Files[i].Touched = false
+	}
+}
+
 func (d *DirNode) AddFile(f FileRec) {
 	//Verbose.Printf("Adding file %s to %d others\n", f.r.Name, len(d.files))
 	d.Files = append(d.Files, f)
@@ -165,19 +192,19 @@ func (d *DirNode) IndexOf(fname string) int {
 	foundAt := -1
 	for {
 		/*
-		if paranoid {
-			if d.files[lo].r.Name > d.files[hi].r.Name {
-				d.Dump()
-				fmt.Printf("g_dirMap has %d items\n", len(g_dirMap))
-				fmt.Printf("refreshed[%d] errs[%d] ok[%d] added[%d]\n",
-					g_refreshCount, g_errCount, g_okCount, g_addCount)
-				fmt.Printf("sort called %d times\n", g_sortCt)
-				fmt.Printf("lo[%d]%s > hi[%d]%s\n",
-					lo, d.files[lo].r.Name, hi, d.files[hi].r.Name)
-				fmt.Printf("lo value > hi value so\n")
-				log.Panicf("something is broken in DirNode's binary search")
+			if paranoid {
+				if d.files[lo].r.Name > d.files[hi].r.Name {
+					d.Dump()
+					fmt.Printf("g_dirMap has %d items\n", len(g_dirMap))
+					fmt.Printf("refreshed[%d] errs[%d] ok[%d] added[%d]\n",
+						g_refreshCount, g_errCount, g_okCount, g_addCount)
+					fmt.Printf("sort called %d times\n", g_sortCt)
+					fmt.Printf("lo[%d]%s > hi[%d]%s\n",
+						lo, d.files[lo].r.Name, hi, d.files[hi].r.Name)
+					fmt.Printf("lo value > hi value so\n")
+					log.Panicf("something is broken in DirNode's binary search")
+				}
 			}
-		}
 		*/
 		if fname < d.Files[lo].R.Name || fname > d.Files[hi].R.Name {
 			// not found

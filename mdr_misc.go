@@ -60,6 +60,19 @@ func Reverse(b []byte) {
 	}
 }
 
+// singleCharRead might return newline if no other input
+//  otherwise first character if more than one on a line
+// ^D will cause EOF to be printed and ? as the char returned - better choice is ...
+func SingleCharRead() byte {
+	var buf = []byte{0}
+	_, err := os.Stdin.Read(buf)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return '?'
+	}
+	return buf[0]
+}
+
 // used as helper with filters to collect args from input stream
 // limited to RAM for size of return []string
 func GetAllArgs() []string {

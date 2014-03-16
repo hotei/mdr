@@ -185,6 +185,18 @@ func FileGID(fname string) (int, error) {
 	return int(sys.Gid), nil
 }
 
+func FileLinkCt(fname string) (int, error) {
+	fi, err := os.Stat(fname)
+	if err != nil {
+		return -1, err
+	}
+	//fmt.Printf("fi %v\n\n\n", fi)
+	sys := fi.Sys().(*syscall.Stat_t)
+	//fmt.Printf("Nlink = %d\n", int(sys.Nlink))
+	return int(sys.Nlink), nil	
+}
+
+// OBE since go 1.1?
 func FileIsRegular(fname string) (bool, error) {
 	info, err := os.Stat(fname)
 	if err != nil {

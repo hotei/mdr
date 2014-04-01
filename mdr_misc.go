@@ -193,7 +193,7 @@ func FileLinkCt(fname string) (int, error) {
 	//fmt.Printf("fi %v\n\n\n", fi)
 	sys := fi.Sys().(*syscall.Stat_t)
 	//fmt.Printf("Nlink = %d\n", int(sys.Nlink))
-	return int(sys.Nlink), nil	
+	return int(sys.Nlink), nil
 }
 
 // OBE since go 1.1?

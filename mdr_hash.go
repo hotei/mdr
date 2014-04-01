@@ -26,7 +26,7 @@ func DigestToString(digest []byte) string {
 	for _, hex := range digest {
 		rv = rv + fmt.Sprintf("%02x", hex)
 	}
-	return string(rv)
+	return rv
 }
 
 // syntax sugar
@@ -110,10 +110,7 @@ func FileMD5(fname string) (string, error) {
 		h.Write(buf[0:numRead])
 	}
 	digest := h.Sum(nil)
-	rv := ""
-	for _, hex := range digest {
-		rv = rv + fmt.Sprintf("%02x", hex)
-	}
+	rv := DigestToString(digest)
 	//fmt.Printf("%s digest ->%s\n",fname,rv)
 	return string(rv), nil
 }
@@ -144,10 +141,7 @@ func FileSHA256(fname string) (string, error) {
 		h.Write(buf[0:numRead])
 	}
 	digest := h.Sum(nil)
-	rv := ""
-	for _, hex := range digest {
-		rv = rv + fmt.Sprintf("%02x", hex)
-	}
+	rv := DigestToString(digest)
 	//fmt.Printf("%s digest ->%s\n",fname,rv)
 	return string(rv), nil
 }

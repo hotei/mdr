@@ -10,6 +10,7 @@ import (
 	"hash/crc64"
 	"io"
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
@@ -25,6 +26,30 @@ func Test_000(t *testing.T) {
 	}
 	fmt.Printf("go test -bench=\"*.\" to run all benchmarks\n")
 	fmt.Printf("Pass - test 000\n")
+}
+
+// test progress bar code
+func Test_Progress(t *testing.T) {
+	fmt.Printf("Test_Progress \n")
+	if false {
+		t.Errorf("print fail, but keep testing")
+	}
+	if false {
+		t.Fatalf("print fail and keep testing")
+	}
+	// goal is
+	barA := NewProgressBar(1000)
+	for i := int64(0); i < 1000; i++ {
+		//fmt.Printf("i = %d\n",i)
+		barA.Update(i)
+		barA.Tag(fmt.Sprintf("%d refreshed", i))
+		time.Sleep(time.Millisecond * 10)
+	}
+	barA.Stop()
+	//time.Sleep(time.Second * 2)
+	// waitgroup for updater? done chan?
+	fmt.Printf("Pass - Test_Progress()\n")
+	os.Exit(0)
 }
 
 func Test_001(t *testing.T) {

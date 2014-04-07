@@ -2,7 +2,6 @@ package mdr
 
 import (
 	"fmt"
-	"os"
 )
 
 // split n into NumCPUs ranges,
@@ -13,13 +12,11 @@ import (
 // Test_001
 // See also ExampleJobSplit()
 func JobSplit(n int, NumCPUs int) []IntPair {
-	if NumCPUs < 1 {
-		fmt.Printf("mdr: Jobsplit() thinks %d is too few CPUS \n", NumCPUs)
-		os.Exit(-1)
+	if n <= 0 {
+		return []IntPair{{X: 0, Y: n - 1}}
 	}
-	if NumCPUs > 1000 {
-		fmt.Printf("mdr: Jobsplit() thinks %d is too many CPUS \n", NumCPUs)
-		os.Exit(-1)
+	if NumCPUs <= 1 {
+		return []IntPair{{X: 0, Y: n - 1}}
 	}
 	if Verbose {
 		fmt.Printf("mdr: Jobsplit() NumCPUs(%d)\n", NumCPUs)
@@ -28,22 +25,13 @@ func JobSplit(n int, NumCPUs int) []IntPair {
 	if Verbose {
 		fmt.Printf("mdr: Jobsplit() splitting %d into %d pieces\n", n, NumCPUs)
 	}
-	if NumCPUs == 1 {
-		if Verbose {
-			rc = append(rc, IntPair{0, n - 1})
-			fmt.Printf("mdr: Jobsplit() no split required, range is 0 to %d\n", n-1)
-		}
-		return rc
-	}
 	splitInc := n / NumCPUs
 	excess := n - (splitInc * NumCPUs)
 
-	if Verbose {
-		fmt.Printf("mdr: Jobsplit() increment =  %d, excess = %d\n", splitInc, excess)
-	}
+	Verbose.Printf("mdr: Jobsplit() increment =  %d, excess = %d\n", splitInc, excess)
 	leftSide := 0
 	rightSide := splitInc - 1
-	rc = append(rc, IntPair{leftSide, rightSide})
+	rc = append(rc, IntPair{X: leftSide, Y: rightSide})
 	maxRight := n - 1
 
 	for i := 1; i < NumCPUs; i++ {

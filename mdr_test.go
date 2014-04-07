@@ -49,7 +49,9 @@ func Test_Progress(t *testing.T) {
 	//time.Sleep(time.Second * 2)
 	// waitgroup for updater? done chan?
 	fmt.Printf("Pass - Test_Progress()\n")
-	os.Exit(0)
+	if false {
+		os.Exit(0)
+	}
 }
 
 func Test_001(t *testing.T) {

@@ -39,7 +39,6 @@ type IntPair struct {
 
 var (
 	g_UnusualMode os.FileMode = os.ModeSymlink | os.ModeNamedPipe | os.ModeSocket | os.ModeDevice
-	Verbose                   = false
 )
 
 // return true randomly half the time

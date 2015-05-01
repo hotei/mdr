@@ -61,9 +61,7 @@ func WhichArchiveType(s string) ArchiveType {
 	}
 
 	if len(dispatcher) == 0 {
-		if Verbose {
-			fmt.Printf("Building dispatcher\n")
-		}
+		Verbose.Printf("Building dispatcher\n")
 		// compressed tar collection
 		dispatcher = append(dispatcher, dispatch{".*\\Q.tar.gz\\E$", ArchiveTarType})
 		dispatcher = append(dispatcher, dispatch{".*\\Q.tar.Z\\E$", ArchiveTarType})

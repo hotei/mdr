@@ -1,6 +1,7 @@
 // mdr_test.go
 
 // go test -bench="*."   # re2 expression matches everything, runs all benchmarks
+// go test -run="Test_000" to run just one function
 
 package mdr
 
@@ -28,26 +29,32 @@ func Test_000(t *testing.T) {
 	fmt.Printf("Pass - test 000\n")
 }
 
-// test progress bar code
+// test progress bar code (close but not quite right)
 func Test_Progress(t *testing.T) {
 	fmt.Printf("Test_Progress \n")
-	if false {
-		t.Errorf("print fail, but keep testing")
-	}
-	if false {
-		t.Fatalf("print fail and keep testing")
-	}
-	// goal is
-	barA := NewProgressBar(1000)
-	for i := int64(0); i < 1000; i++ {
-		//fmt.Printf("i = %d\n",i)
+	goal := int64(600) //
+	barA := OneProgressBar(goal)
+	for i := int64(0); i < goal; i++ {
+		// note that bar doesn't update for every loop, just every 200 ms
 		barA.Update(i)
-		barA.Tag(fmt.Sprintf("%d refreshed", i))
+		barA.Tag(fmt.Sprintf("%d of %d have been tested\n", i, goal))
 		time.Sleep(time.Millisecond * 10)
 	}
+	barA.Update(goal)
+	barA.Tag(fmt.Sprintf("%d of %d have been tested", goal, goal))
 	barA.Stop()
-	//time.Sleep(time.Second * 2)
-	// waitgroup for updater? done chan?
+
+	goal = 300
+	barB := OneProgressBar(goal)
+	for i := int64(0); i < goal; i++ {
+		// note that bar doesn't update for every loop, just every 200 ms
+		barB.Update(i)
+		barB.Tag(fmt.Sprintf("%d of %d have been done", i, goal))
+		time.Sleep(time.Millisecond * 10)
+	}
+	barB.Update(goal)
+	barB.Tag(fmt.Sprintf("%d of %d have been done\n", goal, goal))
+	barB.Stop()
 	fmt.Printf("Pass - Test_Progress()\n")
 	if false {
 		os.Exit(0)
@@ -389,6 +396,16 @@ func Test_016(t *testing.T) {
 
 }
 
+func Test_017(t *testing.T) {
+	fmt.Printf("Test_017 \n")
+	fmt.Printf("Spinner runs for 10 seconds\n")
+	for i := 0; i < 10000; i++ {
+		Spinner()
+		time.Sleep(1 * time.Millisecond)
+	}
+	fmt.Printf("Pass - test 017\n")
+}
+
 /*
 func Test_000(t *testing.T) {
 	fmt.Printf("Test_000 \n")
@@ -479,6 +496,7 @@ func ExampleJobSplit() {
 	}
 }
 
+/*
 func ExampleProgressBar() {
 	var (
 		status    int64
@@ -499,3 +517,4 @@ func ExampleProgressBar() {
 	}
 	progChan <- -1 // close up shop
 }
+*/

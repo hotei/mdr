@@ -1,8 +1,6 @@
 package mdr
 
-import (
-	"fmt"
-)
+import ()
 
 // split n into NumCPUs ranges,
 //   JobSplit(10,1) -> returns [ {0,9} ]
@@ -18,13 +16,9 @@ func JobSplit(n int, NumCPUs int) []IntPair {
 	if NumCPUs <= 1 {
 		return []IntPair{{X: 0, Y: n - 1}}
 	}
-	if Verbose {
-		fmt.Printf("mdr: Jobsplit() NumCPUs(%d)\n", NumCPUs)
-	}
+	Verbose.Printf("mdr: Jobsplit() NumCPUs(%d)\n", NumCPUs)
 	rc := make([]IntPair, 0, NumCPUs)
-	if Verbose {
-		fmt.Printf("mdr: Jobsplit() splitting %d into %d pieces\n", n, NumCPUs)
-	}
+	Verbose.Printf("mdr: Jobsplit() splitting %d into %d pieces\n", n, NumCPUs)
 	splitInc := n / NumCPUs
 	excess := n - (splitInc * NumCPUs)
 
@@ -39,15 +33,8 @@ func JobSplit(n int, NumCPUs int) []IntPair {
 			rightSide++
 			excess--
 		}
-		if i == NumCPUs {
-			rightSide = maxRight
-		}
 		pcs := rightSide - leftSide + 1
-
-		if Verbose {
-			fmt.Printf("mdr: Jobsplit()  [ %d , %d ]  %d items in this piece \n", leftSide, rightSide, pcs)
-		}
-
+		Verbose.Printf("mdr: Jobsplit()  [ %d , %d ]  %d items in this piece \n", leftSide, rightSide, pcs)
 		rc[i-1].X = leftSide
 		rc[i-1].Y = rightSide
 		leftSide = rightSide + 1
@@ -55,9 +42,6 @@ func JobSplit(n int, NumCPUs int) []IntPair {
 		rc = append(rc, IntPair{leftSide, rightSide})
 	}
 	pcs := maxRight - leftSide + 1
-	if Verbose {
-		fmt.Printf("mdr: Jobsplit()  [ %d , %d ]  %d items in this piece \n", leftSide, maxRight, pcs)
-	}
-
+	Verbose.Printf("mdr: Jobsplit()  [ %d , %d ]  %d items in this piece \n", leftSide, maxRight, pcs)
 	return rc
 }

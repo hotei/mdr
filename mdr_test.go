@@ -398,12 +398,39 @@ func Test_016(t *testing.T) {
 
 func Test_017(t *testing.T) {
 	fmt.Printf("Test_017 \n")
-	fmt.Printf("Spinner runs for 10 seconds\n")
-	for i := 0; i < 10000; i++ {
+	fmt.Printf("Spinner runs for 4 seconds\n")
+	for i := 0; i < 4000; i++ {
 		Spinner()
 		time.Sleep(1 * time.Millisecond)
 	}
 	fmt.Printf("Pass - test 017\n")
+}
+
+func Test_018(t *testing.T) {
+	var x Ints
+	x = Ints{1}
+	fmt.Printf("x.RotH2T(1) = %v\n", x.RotH2T())
+	x = Ints{1, 2}
+	fmt.Printf("x.RotH2T(1,2) = %v\n", x.RotH2T())
+	x = Ints{1, 2, 3}
+	fmt.Printf("x.RotH2T(1,2,3) = %v\n", x.RotH2T())
+	x = Ints{1, 2, 3, 4}
+	fmt.Printf("x.RotH2T(1,2,3,4) = %v\n", x.RotH2T())
+
+}
+
+/*
+	var y Ints = Ints{2,3,4,1}
+	if x == y {
+	fmt.Printf("Pass - test 018\n")
+	}else {
+		t.Errorf("Test_018 didn't get matching result")
+	}
+*/
+
+func Test_019(t *testing.T) {
+	var x Ints = Ints{1, 2, 3, 4}
+	fmt.Printf("x.RotT2H(1,2,3,4) = %v\n", x.RotT2H())
 }
 
 /*

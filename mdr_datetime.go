@@ -34,6 +34,45 @@ func HumanTime(t time.Duration) (rs string) {
 	return
 }
 
+func ValidDate(year, month, day, hour, minute, second int) bool {
+	if year < 0 {
+		return false
+	}
+	// would upper limit on valid year make any sense?
+	var monthdays []int = []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	if !InRangeI(1, month, 12) {
+		return false
+	}
+	var days int
+	if month == 2 {
+		if year%400 == 0 {
+			days = 29
+		} else if year%100 == 0 {
+			days = 28
+		} else if year%4 == 0 {
+			days = 29
+		} else {
+			days = 28
+		}
+	} else {
+		days = monthdays[month]
+	}
+	if !InRangeI(1, day, days) {
+		return false
+	}
+	if !InRangeI(0, hour, 23) {
+		return false
+	}
+	if !InRangeI(0, minute, 59) {
+		return false
+	}
+	if !InRangeI(0, second, 59) {
+		return false
+	}
+
+	return true
+}
+
 // true if when is a leap year
 func LeapYear(when time.Time) bool {
 	year := when.Year()

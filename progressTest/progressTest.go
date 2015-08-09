@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("Test_Progress \n")
+	fmt.Printf("progress_Test\n")
 	goal := int64(600) //
 	barA := mdr.OneProgressBar(goal)
 	for i := int64(0); i < goal; i++ {
@@ -36,7 +36,7 @@ func main() {
 	barB.Update(goal)
 	barB.Tag(fmt.Sprintf("%d of %d have been done\n", goal, goal))
 	barB.Stop()
-	fmt.Printf("Pass - Test_Progress()\n")
+	fmt.Printf("Pass - progress_Test\n")
 	if false {
 		os.Exit(0)
 	}

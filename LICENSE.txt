@@ -1,4 +1,4 @@
-Copyright (c) 2014, Hotei
+Copyright (c) 2010-2015, David Rook aka hotei1352@gmail.com
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

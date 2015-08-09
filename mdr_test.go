@@ -14,6 +14,8 @@ import (
 	"os"
 	"testing"
 	"time"
+	//
+	"github.com/hotei/statdata"
 )
 
 // template
@@ -27,6 +29,28 @@ func Test_000(t *testing.T) {
 	}
 	fmt.Printf("go test -bench=\"*.\" to run all benchmarks\n")
 	fmt.Printf("Pass - test 000\n")
+}
+
+// Test_Binomial checks FlipCoin against calculated value from
+// binomial approximation
+func Test_Binomial(t *testing.T) {
+	fmt.Printf("Test_Binomial \n")
+	const numCoins = 60
+	const numTrials = 1000000
+
+	var bin statdata.StatDat = statdata.StatDat{Name: "60 flippin coins"}
+	for j := 0; j < numTrials; j++ {
+		heads := 0
+		for i := 0; i < numCoins; i++ {
+			if FlipCoin() {
+				heads++
+			}
+		}
+		bin.Stat(float64(heads))
+	}
+	bin.Dump()
+	fmt.Printf("should be ave(30.0) and sqrt(15) or stdev(3.872) \n")
+	fmt.Printf("Pass - Test_Binomial\n")
 }
 
 // test progress bar code (close but not quite right)
@@ -431,6 +455,48 @@ func Test_018(t *testing.T) {
 func Test_019(t *testing.T) {
 	var x Ints = Ints{1, 2, 3, 4}
 	fmt.Printf("x.RotT2H(1,2,3,4) = %v\n", x.RotT2H())
+}
+
+func Test_020(t *testing.T) {
+	type testBlk struct {
+		name  string
+		iscol bool
+	}
+
+	var testBlocks = []testBlk{
+		{"abc.jar", true},
+		{"abc.jarHead", false},
+		{"abc.JAR", true},
+		{"abc.Jared", false},
+		{"abc.JaR", true},
+		{"abc.gz", false},
+		{"abc.tgz", true},
+		{"abc.gzip", false},
+		{"abc.g.zip", true},
+		{"abc.tar.gz", true},
+		{"abc.shar", true},
+		{"abc.Z", false},
+		{"abc.z", false},
+		{"abc.tbz", true},
+		{"abc.tar.bz", true},
+		{"abc.bzip2", true},
+		{"abc.tbz2", true},
+		{"abc.tar.bz2", true},
+		{"abc.cpio", false},
+		{"abc.cpio.gz", false},
+		{"coverage-fail.tar", false},
+	}
+	fmt.Printf("\n\nIs named file a collection? compare human & dispatcher\n")
+	for _, blk := range testBlocks {
+		name := blk.name
+		iscol := blk.iscol
+		iscollection, pat := FileNameIsCollection(name)
+		if iscol != iscollection {
+			fmt.Printf("%s %v  disagrees with %s <----- \n", name, iscol, pat)
+		} else {
+			fmt.Printf("%s %v  agrees with %s\n", name, iscol, pat)
+		}
+	}
 }
 
 /*

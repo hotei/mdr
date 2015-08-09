@@ -2,6 +2,14 @@
 
 package mdr
 
+// AbsF64 returns the absolute value of a float64
+func AbsF64(a float64) float64 {
+	if a < 0.0 {
+		return -a
+	}
+	return a
+}
+
 // true IFF a <= b <= c || a >= b >= c, note a < c not required
 func InRangeF(a, b, c float64) bool {
 	if a > c { // swap bounds if necessary to get a < b < c

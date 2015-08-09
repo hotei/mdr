@@ -6,6 +6,13 @@ import (
 	"net"
 )
 
+type Point struct {
+	X int
+	Y int
+}
+
+type Points []Point
+
 // ==================   start with "int" functions =====================
 
 func MinI(a, b int) int {
@@ -42,6 +49,16 @@ func (a Ints) ContainsI(b int) bool {
 		}
 	}
 	return false
+}
+
+func ConfineLoHi(lo, i, hi int) int {
+	if i < lo {
+		return lo
+	}
+	if i > hi {
+		return hi
+	}
+	return i
 }
 
 // RotT2H rotates the head of an array to tail position
@@ -108,6 +125,8 @@ func PermutedInts(a Ints) []Ints {
 
 // BUG(mdr) Factorial using recursion may not be the best choice ...
 // BUG(mdr) check for overflow in Factorial or limit choice of n to good range
+
+// Factorial computes value recursively.
 func Factorial(n int) int {
 	if n < 0 {
 		return -1
@@ -118,8 +137,121 @@ func Factorial(n int) int {
 	return n * Factorial(n-1)
 }
 
-// ==================   next are the 32 bit functions =====================
+// CreateBezierPts start, control, end pts for quadratic bezier.  segments is
+// the number of line segments to create, more means smoother curve.
+func CreateBezierPts(p1, p2, p3 Point, segments int) Points {
+	//fmt.Printf("Bezier points start(%v) control(%v) end(%v)\n", p1, p2, p3)
+	var pts = make(Points, segments)
+	fx1, fy1 := float64(p1.X), float64(p1.Y)
+	fx2, fy2 := float64(p2.X), float64(p2.Y)
+	fx3, fy3 := float64(p3.X), float64(p3.Y)
+	for i := 0; i < segments; i++ {
+		c := float64(i) / float64(segments)
+		a := 1 - c
+		a, b, c := a*a, 2*c*a, c*c
+		pts[i].X = int(a*fx1 + b*fx2 + c*fx3)
+		pts[i].Y = int(a*fy1 + b*fy2 + c*fy3)
+	}
+	pts = append(pts, p3)
+	return pts
+}
 
+// RangeMinMaxPoint returns bounds of point array.
+// probably a better name would help... 8888
+func RangeMinMaxPoint(v Points) (minPt, maxPt Point) {
+	vlen := len(v)
+	if vlen <= 0 {
+		// warn?
+		return
+	}
+	minPt, maxPt = v[0], v[0]
+	for i := 1; i < vlen; i++ {
+		if v[i].X < minPt.X {
+			minPt.X = v[i].X
+		}
+		if v[i].Y < minPt.Y {
+			minPt.Y = v[i].Y
+		}
+		if v[i].X > maxPt.X {
+			maxPt.X = v[i].X
+		}
+		if v[i].Y > maxPt.Y {
+			maxPt.Y = v[i].Y
+		}
+	}
+	return minPt, maxPt
+}
+
+/*
+// used in image manipulation
+func RangeMinMaxIntPair(v []IntPair) (minPt, maxPt IntPair) {
+	vlen := len(v)
+	if vlen <= 0 {
+		// warn?
+		return
+	}
+	minPt, maxPt = v[0], v[0]
+	for i := 1; i < vlen; i++ {
+		if v[i].X < minPt.X {
+			minPt.X = v[i].X
+		}
+		if v[i].Y < minPt.Y {
+			minPt.Y = v[i].Y
+		}
+		if v[i].X > maxPt.X {
+			maxPt.X = v[i].X
+		}
+		if v[i].Y > maxPt.Y {
+			maxPt.Y = v[i].Y
+		}
+	}
+	return minPt, maxPt
+}
+*/
+
+// Split separates the X and Y values into their own arrays
+func (pts Points) Split() (xs []int, ys []int) {
+	for i := 0; i < len(pts); i++ {
+		xs = append(xs, pts[i].X)
+		ys = append(ys, pts[i].Y)
+	}
+	return xs, ys
+}
+
+// LoHi returns the min and max of an array of ints
+func LoHi(ary []int) (lo int, hi int) {
+	if len(ary) <= 0 {
+		log.Panic("empty array received by LoHi\n")
+	}
+	lo = ary[0]
+	hi = ary[0]
+	for i := 1; i < len(ary); i++ {
+		if ary[i] < lo {
+			lo = ary[i]
+		}
+		if ary[i] > hi {
+			hi = ary[i]
+		}
+	}
+	return lo, hi
+}
+
+// ==================   16 bit functions =====================
+// convert from little endian two byte slice to int16
+func SixteenBit(n []byte) uint16 {
+	if len(n) != 2 {
+		FatalError(fmt.Errorf("mdr: Slice must be exactly 2 bytes\n"))
+	}
+	var rc uint16
+	rc = uint16(n[1])
+	rc <<= 8
+	rc |= uint16(n[0])
+	return rc
+}
+
+// ==================   32 bit functions =====================
+
+// ThirtyTwoNet is a synonym for Uint32FromMSBytes
 func ThirtyTwoNet(n []byte) uint32 {
 	return Uint32FromMSBytes(n)
 }

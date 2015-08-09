@@ -1,31 +1,15 @@
-// mdr.go   (c) 2013,2014 David Rook - License is BSD style - see LICENSE.md
-// Utility Functions
-//
-//  Features
-//  ========
-//    Most of the functions are short and easily understood
-//    Examples available for the less obvious
-//
-// Real BUGS  -##0{   None Known - but beware of limitations
-//
-//  Limitations
-//  -----------
-//    GetKey() doesn't hide key entry
-//
-//
-//  Also see README-mdr.md for more info
-//
+// mdr_misc.go (c) 2015 David Rook
+
 package mdr
 
-// BUG(mdr): TODO need more test cases
 import (
-	// uses standard lib go 1.2 pkgs below
 	"bufio"
 	"flag"
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
+	//"math/rand"
+	"math"
 	"os"
 	"strings"
 	"syscall"
@@ -41,14 +25,14 @@ var (
 	g_UnusualMode os.FileMode = os.ModeSymlink | os.ModeNamedPipe | os.ModeSocket | os.ModeDevice
 )
 
-// return true randomly half the time
-// Test case is Test_003
+// FlipCoin returns true randomly half the time
+// Test with mdr_test.go:Test_003
 func FlipCoin() bool {
-	return rand.Int31n(2) == 0
+	return GenFlipCoin()
 }
 
 // reverse a slice of bytes in place
-// Test is Test_006
+// Test with mdr_test.go:Test_006
 func Reverse(b []byte) {
 	first := 0
 	last := len(b) - 1
@@ -158,6 +142,75 @@ func FileLength(fname string) (int64, error) {
 	return stats.Size(), nil
 }
 
+// ZRotate rotates a point about 0,0 (z axis).
+func (loc *Point) ZRotate(radians float64) {
+	if radians == 0.0 {
+		return
+	}
+	if (*loc == Point{0, 0}) {
+		return
+	}
+	Verbose.Printf("ZRotate starts with loc(%v), turn by  %v radians --> ", loc, radians)
+	polarAngle, polarRadius := Polar(*loc)
+	Verbose.Printf("A %v R %v\n", polarAngle, polarRadius)
+	polarAngle += radians
+	*loc = Cartesian(polarAngle, polarRadius)
+	Verbose.Printf("new loc(%v)\n", *loc)
+	return
+}
+
+// RotateOnPivotPt rotate a point using another point as a pivot (mimic mechanical compass drawing).
+func (loc *Point) RotateOnPivotPt(p Point, radians float64) {
+	loc.X -= p.X
+	loc.Y -= p.Y
+	loc.ZRotate(radians)
+	loc.X += p.X
+	loc.Y += p.Y
+}
+
+// Cartesian returns Cartesian point from polar point.
+// NoteBene: NOT the usual [in trig x=cos(a) y=sin(a)]
+// because y axis is inverted in 'conventional' computer graphics.
+func Cartesian(angle, radius float64) Point {
+	var rv Point
+	rv.X = int(math.Sin(angle) * radius)
+	rv.Y = int(math.Cos(angle) * radius)
+	return rv
+}
+
+// video   3 | 2       function graph Quad 2 | 1
+//         --|--                           --|--
+//         4 | 1                           3 | 4
+//
+
+// Polar returns the polar coords (angle and radius) for a Cartesian point.
+func Polar(loc Point) (theta, r float64) {
+	if (loc == Point{0, 0}) {
+		return 0, 0 // The angle is actually undefined but this will do.
+	}
+	x, y := float64(loc.X), float64(loc.Y)
+	return math.Mod(math.Atan2(x, y)+2*math.Pi, 2*math.Pi), math.Hypot(x, y)
+}
+
+// radians returns the equivalent to degrees.
+func Radians(degrees float64) float64 {
+	return degrees * RadiansPerDegree
+}
+
+// PolarAngle returns the angle produced by a line from Point{0,0} to loc.
+func PolarAngle(loc Point) float64 {
+	if (loc == Point{0, 0}) {
+		// possibly not an error in some cases so
+		return 0.0 // The angle is actually undefined but this will do.
+	}
+	x, y := float64(loc.X), float64(loc.Y)
+	rv := math.Atan2(x, y)
+	if rv < 0.0 {
+		rv += PiX2
+	}
+	return rv
+}
+
 ///////////////////////////  N E E D   T E S T   C A S E S  ///////////////////
 
 // return files userid number
@@ -195,7 +248,7 @@ func FileLinkCt(fname string) (int, error) {
 	return int(sys.Nlink), nil
 }
 
-// OBE since go 1.1?
+// BUG(mdr) FileIsRegular now OBE (since go 1.1)
 func FileIsRegular(fname string) (bool, error) {
 	info, err := os.Stat(fname)
 	if err != nil {
@@ -207,31 +260,6 @@ func FileIsRegular(fname string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
-}
-
-// used in image manipulation
-func RangeMinMaxPoint(v []IntPair) (minPt, maxPt IntPair) {
-	vlen := len(v)
-	if vlen <= 0 {
-		// warn?
-		return
-	}
-	minPt, maxPt = v[0], v[0]
-	for i := 1; i < vlen; i++ {
-		if v[i].X < minPt.X {
-			minPt.X = v[i].X
-		}
-		if v[i].Y < minPt.Y {
-			minPt.Y = v[i].Y
-		}
-		if v[i].X > maxPt.X {
-			maxPt.X = v[i].X
-		}
-		if v[i].Y > maxPt.Y {
-			maxPt.Y = v[i].Y
-		}
-	}
-	return minPt, maxPt
 }
 
 func Crash(reason string) {

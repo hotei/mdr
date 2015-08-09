@@ -34,12 +34,17 @@ func HumanTime(t time.Duration) (rs string) {
 	return
 }
 
+// ValidDate tries to determine validity of given date.  It's not very
+// much use in pre-Gregorian times and doesn't do BCE at all.
+// https://en.wikipedia.org/wiki/Julian_calendar may help understanding,
+// or may just confuse one further :-)
 func ValidDate(year, month, day, hour, minute, second int) bool {
+	// this isn't very kind to non-christians...
 	if year < 0 {
 		return false
 	}
 	// would upper limit on valid year make any sense?
-	var monthdays []int = []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	var monthdays []int = []int{0,31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 	if !InRangeI(1, month, 12) {
 		return false
 	}
@@ -99,7 +104,14 @@ func StarDate(when time.Time) float64 {
 	} else {
 		daysinyear = 365
 	}
-	hrs := (dayofyear-1)*24 + float64(when.Hour())
+	// note Hour is rounded so should add fraction for Minutes*60+Seconds
+	elapsedSeconds := when.Hour() * 3600
+	elapsedSeconds += +when.Minute()*60
+	elapsedSeconds += when.Second()
+	hrs := (dayofyear-1)*24 + (float64(elapsedSeconds)/3600.0)
 	//fmt.Printf("hrs = %v \n",hrs)
-	return yr + hrs/(daysinyear*24)
+	// TODO should be rounded to .0000 
+	rv := yr + hrs/(daysinyear*24)
+	//rv = math.Round(rv,4 places)
+	return rv
 }

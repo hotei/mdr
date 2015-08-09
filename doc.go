@@ -1,6 +1,6 @@
-// mdr.go   (c) 2013-20155 David Rook - all rights reserved
+// doc.go   (c) 2013-2015 David Rook - all rights reserved
 //
-// Eclectic Utility Functions
+// Eclectic Set of Utility Functions
 //
 //  Features
 //  ========

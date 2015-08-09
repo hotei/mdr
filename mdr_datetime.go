@@ -44,7 +44,7 @@ func ValidDate(year, month, day, hour, minute, second int) bool {
 		return false
 	}
 	// would upper limit on valid year make any sense?
-	var monthdays []int = []int{0,31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	var monthdays []int = []int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 	if !InRangeI(1, month, 12) {
 		return false
 	}
@@ -106,11 +106,11 @@ func StarDate(when time.Time) float64 {
 	}
 	// note Hour is rounded so should add fraction for Minutes*60+Seconds
 	elapsedSeconds := when.Hour() * 3600
-	elapsedSeconds += +when.Minute()*60
+	elapsedSeconds += +when.Minute() * 60
 	elapsedSeconds += when.Second()
-	hrs := (dayofyear-1)*24 + (float64(elapsedSeconds)/3600.0)
+	hrs := (dayofyear-1)*24 + (float64(elapsedSeconds) / 3600.0)
 	//fmt.Printf("hrs = %v \n",hrs)
-	// TODO should be rounded to .0000 
+	// TODO should be rounded to .0000
 	rv := yr + hrs/(daysinyear*24)
 	//rv = math.Round(rv,4 places)
 	return rv

@@ -505,27 +505,27 @@ func Test_021(t *testing.T) {
 
 	type Expect struct {
 		year int
-		rv bool
+		rv   bool
 	}
 	var testBlocks = []Expect{
 		// expect true
-		{ 1600,true},
-		{ 1700,false},
-		{ 1800,false},
-		{ 1900,false},
-		{ 2000,true},
-		{ 2015,false},
-		{ 2016,true},
-		{ 2100,false},
+		{1600, true},
+		{1700, false},
+		{1800, false},
+		{1900, false},
+		{2000, true},
+		{2015, false},
+		{2016, true},
+		{2100, false},
 	}
 	for _, blk := range testBlocks {
-		fmt.Printf("Testing %v\n",blk)
-		testDate := time.Date(blk.year,1,1, 1,1,1, 0,time.UTC)
+		fmt.Printf("Testing %v\n", blk)
+		testDate := time.Date(blk.year, 1, 1, 1, 1, 1, 0, time.UTC)
 		myrv := LeapYear(testDate)
 		if myrv != blk.rv {
-			t.Errorf("%v %v doesnt match expected %v",blk.year,blk.rv, myrv)
+			t.Errorf("%v %v doesnt match expected %v", blk.year, blk.rv, myrv)
 		}
-	}	
+	}
 	fmt.Printf("Pass - test 021\n")
 }
 
@@ -533,39 +533,39 @@ func Test_022(t *testing.T) {
 	fmt.Printf("Test_022 \n")
 
 	type dateT struct {
-		year,month,day,hour,minute,second int
+		year, month, day, hour, minute, second int
 	}
 	type Expect struct {
 		date dateT
-		rv bool
+		rv   bool
 	}
 	var testBlocks = []Expect{
 		// expect true
-		{ dateT{2015,8,9,0,0,0},true},
-		{ dateT{2015,12,9,13,0,0},true},
-		{ dateT{2016,8,9,10,0,0},true},
-		{ dateT{2016,2,29,10,0,0},true},	// leapyear
-		{ dateT{2000,2,29,10,0,0},true},	// leapyear
+		{dateT{2015, 8, 9, 0, 0, 0}, true},
+		{dateT{2015, 12, 9, 13, 0, 0}, true},
+		{dateT{2016, 8, 9, 10, 0, 0}, true},
+		{dateT{2016, 2, 29, 10, 0, 0}, true}, // leapyear
+		{dateT{2000, 2, 29, 10, 0, 0}, true}, // leapyear
 		// expect false
-		{ dateT{1900,2,29,10,0,0},false},	// not a leapyear
-		{ dateT{2017,2,29,10,0,0},false},	// not a leapyear
-		{ dateT{-2015,8,9,0,0,0},false}, // year [0.. ?]
-		{ dateT{2015,8,9,24,0,0},false}, // hour [0..23]
-		{ dateT{2015,8,9,0,60,0},false}, // minute [0..59]
-		{ dateT{2015,8,9,0,0,60},false}, // second [0..60]
-		{ dateT{2015,0,9,13,0,0},false}, // month [1..12]
-		{ dateT{2015,13,9,13,0,0},false}, // month [1..12]
-		{ dateT{2015,8,9,24,0,0},false},
+		{dateT{1900, 2, 29, 10, 0, 0}, false}, // not a leapyear
+		{dateT{2017, 2, 29, 10, 0, 0}, false}, // not a leapyear
+		{dateT{-2015, 8, 9, 0, 0, 0}, false},  // year [0.. ?]
+		{dateT{2015, 8, 9, 24, 0, 0}, false},  // hour [0..23]
+		{dateT{2015, 8, 9, 0, 60, 0}, false},  // minute [0..59]
+		{dateT{2015, 8, 9, 0, 0, 60}, false},  // second [0..60]
+		{dateT{2015, 0, 9, 13, 0, 0}, false},  // month [1..12]
+		{dateT{2015, 13, 9, 13, 0, 0}, false}, // month [1..12]
+		{dateT{2015, 8, 9, 24, 0, 0}, false},
 	}
 	for _, blk := range testBlocks {
-		fmt.Printf("Testing %v\n",blk)
-	myrv := ValidDate(blk.date.year,blk.date.month,blk.date.day,
-			blk.date.hour,blk.date.minute,blk.date.second)
+		fmt.Printf("Testing %v\n", blk)
+		myrv := ValidDate(blk.date.year, blk.date.month, blk.date.day,
+			blk.date.hour, blk.date.minute, blk.date.second)
 		if myrv != blk.rv {
-			t.Errorf("%v %v doesnt match expected %v",blk.date,blk.rv, myrv)
+			t.Errorf("%v %v doesnt match expected %v", blk.date, blk.rv, myrv)
 		}
 	}
-	
+
 	fmt.Printf("Pass - test 022\n")
 }
 
@@ -573,37 +573,38 @@ func Test_023(t *testing.T) {
 	fmt.Printf("Test_023 \n")
 
 	type dateT struct {
-		year,month,day,hour,minute,second int
+		year, month, day, hour, minute, second int
 	}
 	type Expect struct {
 		date dateT
-		rv float64
+		rv   float64
 	}
 	var testBlocks = []Expect{
-// note different values for leapyear June 30 and Dec 31
-		{ dateT{2015,1,1,0,0,0},2015.0},
-		{ dateT{2015,6,30,23,59,59},2015.4959},
-		{ dateT{2015,12,31,23,59,59},2016.0},	
-		{ dateT{2016,1,1,0,0,0},2016.0},
-		{ dateT{2016,6,30,23,59,59},2016.4973},
-		{ dateT{2016,12,31,23,59,59},2017.0},	
-		{ dateT{2017,1,1,0,0,0},2017.0},
+		// note different values for leapyear June 30 and Dec 31
+		{dateT{2015, 1, 1, 0, 0, 0}, 2015.0},
+		{dateT{2015, 6, 30, 23, 59, 59}, 2015.4959},
+		{dateT{2015, 12, 31, 23, 59, 59}, 2016.0},
+		{dateT{2016, 1, 1, 0, 0, 0}, 2016.0},
+		{dateT{2016, 6, 30, 23, 59, 59}, 2016.4973},
+		{dateT{2016, 12, 31, 23, 59, 59}, 2017.0},
+		{dateT{2017, 1, 1, 0, 0, 0}, 2017.0},
 	}
-	errOk := 0.0001  // ok if abs(error) is less than this
+	errOk := 0.0001 // ok if abs(error) is less than this
 	for _, blk := range testBlocks {
-		testDate := time.Date(blk.date.year,time.Month(blk.date.month),blk.date.day,
-			blk.date.hour,blk.date.minute,blk.date.second, 0,time.UTC)
+		testDate := time.Date(blk.date.year, time.Month(blk.date.month), blk.date.day,
+			blk.date.hour, blk.date.minute, blk.date.second, 0, time.UTC)
 		myrv := StarDate(testDate)
 		diff := AbsF64(myrv - blk.rv)
-		fmt.Printf("Testing %v  ",blk)
+		fmt.Printf("Testing %v  ", blk)
 		if diff > errOk {
-			t.Errorf("StarDate %9.4f %v %v doesnt match expected", myrv,blk.date,blk.rv)
+			t.Errorf("StarDate %9.4f %v %v doesnt match expected", myrv, blk.date, blk.rv)
 		}
-		fmt.Printf(" gives StarDate %9.4f \n",myrv)
-	}	
-		
+		fmt.Printf(" gives StarDate %9.4f \n", myrv)
+	}
+
 	fmt.Printf("Pass - test 023\n")
 }
+
 /*
 func Test_000(t *testing.T) {
 	fmt.Printf("Test_000 \n")

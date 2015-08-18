@@ -7,21 +7,26 @@ DATE = 	`date "+%Y-%m-%d.%H_%M_%S"`
 DOCOUT = README-$(PROG)-godoc.md
 
 all:
-	go build
-
+	go build -v
+	
 install:
 	go build
 	go tool vet .
 	go tool vet -shadow .
 	gofmt -w *.go
 	go install
+#	cp $(PROG) $(HOME)/bin
+	
+docs:
 	godoc2md . > $(DOCOUT)
 	godepgraph -md -p . >> $(DOCOUT)
 	deadcode -md >> $(DOCOUT)
+	echo "\`\`\`" >> $(DOCOUT)
+	echo built with go version = $(GOVERSION) >> $(DOCOUT)
+	echo "\`\`\`" >> $(DOCOUT)
 	cp README-$(PROG).md README.md
 	cat $(DOCOUT) >> README.md
 	cp README.md README2.md
-#	cp $(PROG) $(HOME)/bin
 	
 neat:
 	go fmt ./...
@@ -34,7 +39,8 @@ index:
 
 clean:
 	go clean ./...
-	rm -f *~ problems.dead count.out $(DOCOUT) README2.md
+	rm -f *~ problems.dead count.out README2.md
+#	rm -f $(DOCOUT)
 
 tar:
 	echo $(TARDIR)$(PROG)_$(VERSION)_$(DATE).tar

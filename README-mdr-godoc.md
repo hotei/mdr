@@ -1116,3 +1116,6 @@ deadcode results:
 
 deadcode: mdr_dirNode.go:15:1: paranoid is unused
 ```
+```
+built with go version = 1.5rc1
+```

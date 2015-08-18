@@ -3,6 +3,13 @@ mdr
 ===
 </center>
 
+<h3>   <a href="http://godoc.org/github.com/hotei/mdr">
+<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" />
+</a>Travis <a href="http://travis-ci.org/hotei/mdr">
+<img src="https://secure.travis-ci.org/hotei/mdr.png" alt="Build Status" /></a>
+</h1>
+
+
 License details are at the end of this document. 
 This document is (c) 2012-2015 David Rook.
 
@@ -1209,4 +1216,7 @@ github.com/hotei/mdr imports
 deadcode results:
 
 deadcode: mdr_dirNode.go:15:1: paranoid is unused
+```
+```
+built with go version = 1.5rc1
 ```

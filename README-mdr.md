@@ -3,6 +3,13 @@ mdr
 ===
 </center>
 
+<h3>   <a href="http://godoc.org/github.com/hotei/mdr">
+<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" />
+</a>Travis <a href="http://travis-ci.org/hotei/mdr">
+<img src="https://secure.travis-ci.org/hotei/mdr.png" alt="Build Status" /></a>
+</h1>
+
+
 License details are at the end of this document. 
 This document is (c) 2012-2015 David Rook.
 

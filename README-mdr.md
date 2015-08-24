@@ -4,10 +4,12 @@ mdr
 </center>
 
 <h3>   <a href="http://godoc.org/github.com/hotei/mdr">
-<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" />
-</a>Travis <a href="http://travis-ci.org/hotei/mdr">
+<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" /><br>
+<p>
+</a><a href="http://travis-ci.org/hotei/mdr">
 <img src="https://secure.travis-ci.org/hotei/mdr.png" alt="Build Status" /></a>
-</h1>
+Travis build status.
+</h3>
 
 
 License details are at the end of this document. 
@@ -28,36 +30,55 @@ If you have a working go installation on a Unix-like OS:
 
 > ```go get github.com/hotei/mdr```
 
-## Features
+### Features
 
-## Style
+Functions/Methods are grouped (loosely) in the following categories
 
-```
-I prefer not to use the single line form :
+* Hash Helpers for CRC64, MD5, SHA256 etc
+  * return string digest of a buffer
+  * return string digest of a file
+* Random number generators
+  * Uniform
+  * Uniform numbers between two values (float64 and int)
+  * Poisson
+  * FlipCoin
+  * Normal and Normal Z (unit normal)
+  * Crypto-Quality random []byte
+* archives
+  * whether the file is a "collection" of files (like tar or zip) or just "itself"
+  * determining compression types given file name
+* Formatting helpers
+  * add commas to integer numbers
+  * print dates as human friendly times (1 day instead of 86400 seconds)
+  * test dates for "legality" and leapyears
+  * progress displays - spinner or progressbar (if endpoint known)
+  * StarDate
+  * validating decimal or hex strings
+* Getting obscure properties of files from the os 
+  * User and Group numbers
+  * Number of links 
+* Integer and float64 helpers
+  * test if value is in range between two values
+  * convert an int to and from []byte of various sizes
+  * compute max and min of a []int
+  * compute max and min points given []Point  (Bounds)
+  * creating Bezier interpolations (quadratic)
+* Polar <--> Rectangular coordinate conversion
+* Parallel computation helpers
+  * JobSplit figures out how to split a job into pieces for each CPU to work on
+* Directory operations
+  * maps of paths to SHA256 of contents
 
-	if x,err := foo(); err != nil {
-	// stuff
-	}
-
-instead you'll see:
-	x,err := foo()
-	if err != nil {
-	// stuff
-	}
-```
-
-## Configuration
-
-* Note that the CRC64 table is Public if you need to replace it without changing
-the library.
-* I use fatal errors rather than panics in most places.  This is a habit of mine and may
-not always lead to the fastest debugging.  I just prefer the end user see a smaller
-understandable (I hope) message and not the gut-spilling verbosity of panic.
+If you want details you can see them at this link:
+<a href="http://godoc.org/github.com/hotei/mdr">
+<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" />
+</a>
 
 ### Change Log
-
+* 2015-08-18 builds with 1.5rc1
+  * added Travis
 * 2015-05-01 updated progress bar functions
- * validate with 1.4.2
+  * builds with 1.4.2
 * 2013-04-10 updated docs, posted at github.com/hotei/MDR.git
 * additions
 * 2010-04-20 started, working

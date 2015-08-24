@@ -407,12 +407,12 @@ func Test_015(t *testing.T) {
 func Test_016(t *testing.T) {
 	fmt.Printf("\nTest_016 \n")
 
-	i, err := FileUID("mdr_test.go")
+	i, err := FileUID("doc.go")
 	if i != 1001 || err != nil {
 		t.Errorf("failed on FileUID(mdr_test.go) \n")
 		return
 	}
-	i, err = FileGID("mdr_test.go")
+	i, err = FileGID("doc.go")
 	if i != 1001 || err != nil {
 		t.Errorf("failed on FileGID(mdr_test.go) \n")
 		return

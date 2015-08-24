@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	//"math/rand"
 	"math"
 	"os"
@@ -270,6 +271,39 @@ func Crash(reason string) {
 func FatalError(err error) {
 	fmt.Printf("%v\n", err)
 	os.Exit(1)
+}
+
+// checkInterfaces - see if listener is bound to correct interface
+// first is localhost, second should be IP4 of active card,
+// third is IP6 localhost, fourth is IP6 for active card (on this system)
+// on BSD it's [ IP4 IP6 LocalHostIP4 LocalHostIP6 LocalHostIP4]
+//
+// Order isn't important as long as requested inteface is there somewhere
+// actual check needs to do a string match of interfaces we have with a
+// target of the requested interface.  If target isn't present then stop.
+//
+func HasInterface(hostIPStr string) bool {
+	Verbose.Printf("running interface check\n")
+	ifa, err := net.InterfaceAddrs()
+	if err != nil || (len(ifa) < 1) {
+		fmt.Printf("!Err---> HasInterface: Can't list interfaces\n")
+		log.Panic("")
+		os.Exit(1)
+	}
+	for i := 0; i < len(ifa); i++ {
+		Verbose.Printf("Interface[%d] = %v\n", i, ifa[i])
+	}
+
+	for i := 0; i < len(ifa); i++ {
+		myIfs := strings.Split(ifa[i].String(), "/")
+		for _, v := range myIfs {
+			if strings.Contains(v, hostIPStr) {
+				Verbose.Printf("Found the requested interface %s\n", v)
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // <end>

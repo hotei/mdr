@@ -17,6 +17,8 @@ install:
 	go install
 #	cp $(PROG) $(HOME)/bin
 	
+
+# note that godepgraph can be used to derive .travis.yml install: section
 docs:
 	godoc2md . > $(DOCOUT)
 	godepgraph -md -p . >> $(DOCOUT)
@@ -39,8 +41,7 @@ index:
 
 clean:
 	go clean ./...
-	rm -f *~ problems.dead count.out README2.md
-#	rm -f $(DOCOUT)
+	rm -f *~ problems.dead count.out README2.md $(DOCOUT)
 
 tar:
 	echo $(TARDIR)$(PROG)_$(VERSION)_$(DATE).tar

@@ -57,6 +57,9 @@ func WhichArchiveType(s string) ArchiveType {
 	if ext == ".tbz" {
 		return ArchiveTarType
 	}
+	if ext == ".tbz2" {
+		return ArchiveTarType
+	}
 	// ArchiveCpioType -----------------------------------------
 	if ext == ".cpio" {
 		return ArchiveCpioType

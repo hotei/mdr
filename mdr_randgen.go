@@ -7,21 +7,19 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	//
-	"github.com/hotei/datatable"
 )
 
-var NormalZtable *datatable.Table
+var NormalZtable *Table
 
 func init() {
 	// table contains : z value, area (ie. probability) to left of z value
 	// upper half of table only, negative values = (1.0 - upper value)
 	// table values could be expanded if it makes sense to do so
 	// the 60 value is a wag
-	NormalZtable = new(datatable.Table)
+	NormalZtable = new(Table)
 	NormalZtable.Name = "normal_Z_table"
 	NormalZtable.Data =
-		[]datatable.DblPair{
+		[]DblPair{
 			{0.0, 0.5000},
 			{0.25, 0.5987},
 			{0.5, 0.6915},

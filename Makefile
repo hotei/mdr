@@ -8,7 +8,7 @@ DOCOUT = README-$(PROG)-godoc.md
 
 all:
 	go build -v
-	
+
 install:
 	go build
 	go tool vet .
@@ -16,20 +16,20 @@ install:
 	gofmt -w *.go
 	go install
 #	cp $(PROG) $(HOME)/bin
-	
+
 
 # note that godepgraph can be used to derive .travis.yml install: section
 docs:
 	godoc2md . > $(DOCOUT)
 	godepgraph -md -p . >> $(DOCOUT)
 	deadcode -md >> $(DOCOUT)
+	sloc -md >> $(DOCOUT)
 	echo "\`\`\`" >> $(DOCOUT)
 	echo built with go version = $(GOVERSION) >> $(DOCOUT)
 	echo "\`\`\`" >> $(DOCOUT)
 	cp README-$(PROG).md README.md
 	cat $(DOCOUT) >> README.md
-	cp README.md README2.md
-	
+
 neat:
 	go fmt ./...
 

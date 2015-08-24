@@ -4,10 +4,12 @@ mdr
 </center>
 
 <h3>   <a href="http://godoc.org/github.com/hotei/mdr">
-<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" />
-</a>Travis <a href="http://travis-ci.org/hotei/mdr">
+<img src="https://godoc.org/github.com/hotei/mdr?status.png" alt="mdr" /><br>
+<p>
+</a><a href="http://travis-ci.org/hotei/mdr">
 <img src="https://secure.travis-ci.org/hotei/mdr.png" alt="Build Status" /></a>
-</h1>
+Travis build status.
+</h3>
 
 
 License details are at the end of this document. 
@@ -172,15 +174,21 @@ var (
 )
 ```
 ``` go
+var (
+    ForceRangeFlag    bool = true // forces out of range values to fit
+    CantHappenError        = errors.New("Can't-happen")
+    DivideByZeroError      = errors.New("Divide By Zero")
+    OutOfRangeError        = errors.New("Value outside expected range")
+    InvalidTableError      = errors.New("Not a valid table")
+)
+```
+``` go
 var CantCreateRec = errors.New("mdr: cant create Rec256 ")
 ```
 ``` go
 var (
     G_crcTable *crc64.Table
 )
-```
-``` go
-var NormalZtable *datatable.Table
 ```
 
 ## func AbsF64
@@ -401,6 +409,20 @@ limited to RAM for size of return []string
 func GetKey() string
 ```
 BUG(mdr): GetKey() key is visible during entry
+
+
+## func HasInterface
+``` go
+func HasInterface(hostIPStr string) bool
+```
+checkInterfaces - see if listener is bound to correct interface
+first is localhost, second should be IP4 of active card,
+third is IP6 localhost, fourth is IP6 for active card (on this system)
+on BSD it's [ IP4 IP6 LocalHostIP4 LocalHostIP6 LocalHostIP4]
+
+Order isn't important as long as requested inteface is there somewhere
+actual check needs to do a string match of interfaces we have with a
+target of the requested interface.  If target isn't present then stop.
 
 
 ## func HumanTime
@@ -846,6 +868,22 @@ should match magic numbers but that's a different function
 
 
 
+## type DblPair
+``` go
+type DblPair struct {
+    Left, Right float64
+}
+```
+
+
+
+
+
+
+
+
+
+
 ## type DirNode
 ``` go
 type DirNode struct {
@@ -1158,6 +1196,54 @@ func (r Rec256) Dump()
 ```
 
 
+## type Table
+``` go
+type Table struct {
+    Name    string
+    Data    []DblPair
+    RevData []DblPair
+    // contains filtered or unexported fields
+}
+```
+
+
+
+
+``` go
+var NormalZtable *Table
+```
+
+
+
+
+
+
+### func (\*Table) Dump
+``` go
+func (d *Table) Dump()
+```
+
+
+### func (\*Table) Eval
+``` go
+func (d *Table) Eval(v float64) (rc float64, err error)
+```
+
+
+### func (\*Table) ReverseEval
+``` go
+func (d *Table) ReverseEval(val float64) (rc []float64, err error)
+```
+returns multiple hits where appropriate
+
+
+
+### func (\*Table) Setup
+``` go
+func (d *Table) Setup() error
+```
+
+
 ## type VerboseType
 ``` go
 type VerboseType bool
@@ -1203,7 +1289,6 @@ github.com/hotei/mdr imports
 	errors
 	flag
 	fmt
-	github.com/hotei/datatable
 	hash
 	hash/crc64
 	internal/singleflight
@@ -1237,5 +1322,15 @@ deadcode results:
 deadcode: mdr_dirNode.go:15:1: paranoid is unused
 ```
 ```
-built with go version = 1.5rc1
+SLOC output
+
+  Language  Files  Code  Comment  Blank  Total
+     Total     26  5412      576   1623   7611
+  Markdown      4  2695        0   1283   3978
+        Go     19  2658      572    324   3554
+      Make      1    39        4     12     55
+      Text      2    20        0      4     24
+```
+```
+built with go version = 1.5
 ```

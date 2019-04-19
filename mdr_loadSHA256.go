@@ -42,7 +42,7 @@ func LoadSHA256asList(fname string) ([]string, error) {
 		}
 		list256 = append(list256, string(line))
 	}
-	fmt.Printf("added %d precalculated digests from %s\n", len(list256), fname)
+	Verbose.Printf("added %d precalculated digests from %s\n", len(list256), fname)
 	return list256, nil
 }
 
@@ -75,7 +75,7 @@ func LoadSHA256asMap(fname string) (map[string]string, error) {
 		}
 		hashMap[partRec.SHA] = sline
 	}
-	fmt.Printf("added %d precalculated digests from %s\n", len(hashMap), fname)
+	Verbose.Printf("added %d precalculated digests from %s\n", len(hashMap), fname)
 	return hashMap, nil
 }
 
@@ -131,7 +131,7 @@ func LoadSHA256asDirMap(fname string) (map[string]*DirNode, error) {
 		}
 		fileCt++
 	}
-	fmt.Printf("added %d directory nodes with %d files from %s\n", len(dirMap), fileCt, fname)
+	Verbose.Printf("added %d directory nodes with %d files from %s\n", len(dirMap), fileCt, fname)
 	return dirMap, nil
 }
 
@@ -166,6 +166,6 @@ func LoadSHA256Names(fname string) ([]string, error) {
 		listOfNames = append(listOfNames, string(r.Name))
 		fileCt++
 	}
-	fmt.Printf("added %d precalculated digests from %s\n", len(listOfNames), fname)
+	Verbose.Printf("added %d precalculated digests from %s\n", len(listOfNames), fname)
 	return listOfNames, nil
 }

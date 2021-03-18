@@ -6,14 +6,13 @@ import (
 	"net"
 )
 
-type Point struct {
-	X int
-	Y int
+type Ints []int
+
+type IntPair struct {
+	X, Y int
 }
 
-type Points []Point
-
-// ==================   start with "int" functions =====================
+// =====================================
 
 func MinI(a, b int) int {
 	if a < b {
@@ -49,6 +48,19 @@ func (a Ints) ContainsI(b int) bool {
 		}
 	}
 	return false
+}
+
+func ForceRangeI64(a, b, c int64) int64 {
+	if a > c { // swap bounds if necessary to get a < b < c
+		a, c = c, a
+	}
+	if b < a {
+		return a
+	}
+	if b > c {
+		return c
+	}
+	return b
 }
 
 func ConfineLoHi(lo, i, hi int) int {
@@ -123,10 +135,10 @@ func PermutedInts(a Ints) []Ints {
 	return rv
 }
 
+// Factorial computes value recursively.
 // BUG(mdr) Factorial using recursion may not be the best choice ...
 // BUG(mdr) check for overflow in Factorial or limit choice of n to good range
-
-// Factorial computes value recursively.
+//  since it gets big quickly
 func Factorial(n int) int {
 	if n < 0 {
 		return -1
@@ -139,9 +151,10 @@ func Factorial(n int) int {
 
 // CreateBezierPts start, control, end pts for quadratic bezier.  segments is
 // the number of line segments to create, more means smoother curve.
-func CreateBezierPts(p1, p2, p3 Point, segments int) Points {
+// Intended use is mostly with ring5 package, but MIGHT be genericly useful.
+func CreateBezierPts(p1, p2, p3 Pointi, segments int) PointiList {
 	//fmt.Printf("Bezier points start(%v) control(%v) end(%v)\n", p1, p2, p3)
-	var pts = make(Points, segments)
+	var pts = make(PointiList, segments)
 	fx1, fy1 := float64(p1.X), float64(p1.Y)
 	fx2, fy2 := float64(p2.X), float64(p2.Y)
 	fx3, fy3 := float64(p3.X), float64(p3.Y)
@@ -154,32 +167,6 @@ func CreateBezierPts(p1, p2, p3 Point, segments int) Points {
 	}
 	pts = append(pts, p3)
 	return pts
-}
-
-// RangeMinMaxPoint returns bounds of point array.
-// probably a better name would help... 8888
-func RangeMinMaxPoint(v Points) (minPt, maxPt Point) {
-	vlen := len(v)
-	if vlen <= 0 {
-		// warn?
-		return
-	}
-	minPt, maxPt = v[0], v[0]
-	for i := 1; i < vlen; i++ {
-		if v[i].X < minPt.X {
-			minPt.X = v[i].X
-		}
-		if v[i].Y < minPt.Y {
-			minPt.Y = v[i].Y
-		}
-		if v[i].X > maxPt.X {
-			maxPt.X = v[i].X
-		}
-		if v[i].Y > maxPt.Y {
-			maxPt.Y = v[i].Y
-		}
-	}
-	return minPt, maxPt
 }
 
 /*
@@ -209,15 +196,6 @@ func RangeMinMaxIntPair(v []IntPair) (minPt, maxPt IntPair) {
 }
 */
 
-// Split separates the X and Y values into their own arrays
-func (pts Points) Split() (xs []int, ys []int) {
-	for i := 0; i < len(pts); i++ {
-		xs = append(xs, pts[i].X)
-		ys = append(ys, pts[i].Y)
-	}
-	return xs, ys
-}
-
 // LoHi returns the min and max of an array of ints
 func LoHi(ary []int) (lo int, hi int) {
 	if len(ary) <= 0 {
@@ -237,7 +215,9 @@ func LoHi(ary []int) (lo int, hi int) {
 }
 
 // ==================   16 bit functions =====================
-// convert from little endian two byte slice to int16
+
+// SixteenBit converts from little endian two byte slice to int16
+// aka Uint16FromLSBytes
 func SixteenBit(n []byte) uint16 {
 	if len(n) != 2 {
 		FatalError(fmt.Errorf("mdr: Slice must be exactly 2 bytes\n"))
@@ -275,6 +255,7 @@ func Uint32FromMSBytes(b []byte) uint32 {
 
 // convert from LITTLE endian four byte slice to int32
 // reverse function is LSBytesFromUint32
+//  AKA Uint32FromLSBytes
 func ThirtyTwoBit(n []byte) uint32 {
 	if len(n) != 4 {
 		FatalError(fmt.Errorf("mdr: Slice must be exactly 4 bytes\n"))
@@ -290,9 +271,9 @@ func ThirtyTwoBit(n []byte) uint32 {
 	return rc
 }
 
-// returns a uint32 from IPv4 so we can use as index to map
-//    - beware - there are magic numbers here that
-//    - presume knowledge of net.IP internals order
+// Uint32FromIP returns a uint32 from IPv4 so we can use as index to map
+//    -BEWARE- there are magic numbers that
+//      presume knowledge of net.IP internals order
 func Uint32FromIP(ip net.IP) uint32 {
 	if false {
 		for ndx, value := range ip {
@@ -309,7 +290,8 @@ func Uint32FromIP(ip net.IP) uint32 {
 	return x
 }
 
-//  beware - presumes knowledge of net.IP internals order
+// IPFromUint32 beware - also presumes knowledge of net.IP internals order
+//  Inverse of Uint32FromIP
 func IPFromUint32(adr uint32) net.IP {
 	d := byte(adr & 0xff)
 	adr >>= 8
@@ -365,9 +347,9 @@ func InRangeInt64(a, b, c int64) bool {
 	return true
 }
 
-// returns arg as comma inserted number string
-//  12345 becomes "12,345" (not locale sensitive)
-//  This is USA format, not internationalized
+// CommaFmtInt64 returns a comma inserted number string
+//  12345 becomes "12,345" NOTE! uses USA format, not internationalized
+//  Name of a generic function might be DecimalFmtdInt64()
 func CommaFmtInt64(n int64) string {
 	//  Test is Test_007
 	str := fmt.Sprintf("%d", n)
@@ -392,7 +374,7 @@ func CommaFmtInt64(n int64) string {
 	return niceNum
 }
 
-// returns the absolute value of an int64
+// AbsInt64 returns the absolute value of an int64
 func AbsInt64(a int64) int64 {
 	if a < 0 {
 		return -a
@@ -400,7 +382,7 @@ func AbsInt64(a int64) int64 {
 	return a
 }
 
-// convert an int64 into an 8 byte array, LSB first (LittleEndian)
+// LSBytesFromInt64 converts an int64 into an 8 byte array, LSB first (LittleEndian)
 // test is Test_011
 func LSBytesFromInt64(n int64) []byte {
 	rv := make([]byte, 0, 8)
@@ -411,10 +393,10 @@ func LSBytesFromInt64(n int64) []byte {
 	return rv
 }
 
-// convert int64 to [0:8]byte slice with MSB first (BigEndian)
+// MSBytesFromInt64 converts int64 to [0:8]byte slice with MSB first (BigEndian)
 // reverse function is
-// test is Test_013
 func MSBytesFromInt64(n int64) []byte { //
+	// test is Test_013
 	b := make([]byte, 8)
 	b[7] = byte(n & 0xff)
 	n >>= 8
@@ -434,9 +416,9 @@ func MSBytesFromInt64(n int64) []byte { //
 	return b
 }
 
-// convert an 8 byte slice (BigEndian - MSB First) into an int64
-// see Test_014
+// Int64FromMSBytes converts an 8 byte slice (BigEndian - MSB First) into an int64
 func Int64FromMSBytes(b []byte) int64 {
+	// see Test_014
 	if len(b) != 8 {
 		FatalError(fmt.Errorf("mdr: Slice must be exactly 8 bytes\n"))
 	}
@@ -459,9 +441,9 @@ func Int64FromMSBytes(b []byte) int64 {
 	return rc
 }
 
-// convert an 8 byte array into an int64
-// see Test_012
+// Int64FromLSBytes converts an 8 byte array into an int64
 func Int64FromLSBytes(b []byte) int64 {
+	// see Test_012
 	if len(b) != 8 {
 		FatalError(fmt.Errorf("mdr: Slice must be exactly 8 bytes\n"))
 	}
@@ -472,6 +454,31 @@ func Int64FromLSBytes(b []byte) int64 {
 			break
 		}
 		rv <<= 8
+	}
+	return rv
+}
+
+// Smooth creates a new array with smoothed float64 values where n is number of
+//   values over which to average.  Returns an array of same size as original,
+//   so the first and last 'n' values will be "short", ie more sensitive to
+//   any variation.
+func Smooth(d []int64, n int) []float64 {
+	//if n <= 1 {
+	//return d
+	//}
+	fmt.Printf("Smoothing %d elements to avg[%d]\n", len(d), n)
+	var (
+		rv []float64
+		x  SliceI64
+	)
+	rv = make([]float64, len(d))
+	for i := 0; i < len(d); i++ {
+		x = append(x, d[i])
+		if len(x) > n {
+			x = x[1:]
+		}
+		//fmt.Printf("i = %d len(x) = %d,len(rv) = %d\n", i,len(x),len(rv))
+		rv[i] = x.SliceI64Avg()
 	}
 	return rv
 }

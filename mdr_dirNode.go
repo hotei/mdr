@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	paranoid      = false
-	G_datetimeFmt = "2006-01-02:15_04_05"
+	unused_constant = false
+	G_datetimeFmt   = "2006-01-02:15_04_05"
 )
 
 type FileRec struct {

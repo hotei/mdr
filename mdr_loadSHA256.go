@@ -7,10 +7,39 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
+	//"log"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
+
+func Split256(line string) (Rec256, error) {
+	var rec Rec256
+	var err error
+	x := strings.Split(line, "|")
+	if len(x) != 4 {
+		Verbose.Printf("!ERR--->  found other than 4 parts during split of %q\n", line)
+		return rec, CantCreateRec
+	}
+	rec.Size, err = strconv.ParseInt(strings.Trim(x[0], " \n\t\r"), 10, 64)
+	if err != nil {
+		Verbose.Printf("!ERR--->  Cant parse to int64: %s\n", x[0])
+		return rec, CantCreateRec
+	}
+	rec.SHA = strings.Trim(x[1], " \n\t\r")
+	if !ValidHexString(rec.SHA) {
+		Verbose.Printf("!ERR--->  %q is not valid hex \n", rec.SHA)
+		return rec, CantCreateRec
+	}
+	rec.Date = strings.Trim(x[2], " \n\t\r")
+	rec.Name = strings.Trim(x[3], " \n\t\r")
+	if strings.ContainsAny(rec.Name, "\n\t\r") {
+		fmt.Printf("%s name contains unusual character\n", rec.Name)
+		return rec, CantCreateRec
+	}
+	return rec, nil
+}
 
 // LoadSHA256asList returns lines of file as []string , nil on success
 //  each line is known to split without error
@@ -18,7 +47,7 @@ import (
 func LoadSHA256asList(fname string) ([]string, error) {
 	fileBytes, err := ioutil.ReadFile(fname)
 	if err != nil {
-		log.Fatalf("error reading from %s: %v\n", fname, err)
+		return nil, fmt.Errorf("error reading from %s: %v\n", fname, err)
 	}
 	list256 := make([]string, 0, 1000)
 	//Verbose.Printf("Loading from %s\n", fname)
@@ -38,7 +67,7 @@ func LoadSHA256asList(fname string) ([]string, error) {
 		}
 		_, err := Split256(string(line))
 		if err != nil {
-			log.Fatalf("split failed\n")
+			return nil, fmt.Errorf("split failed on line[%d] = %q", ndx, line)
 		}
 		list256 = append(list256, string(line))
 	}
@@ -50,7 +79,7 @@ func LoadSHA256asList(fname string) ([]string, error) {
 func LoadSHA256asMap(fname string) (map[string]string, error) {
 	fileBytes, err := ioutil.ReadFile(fname)
 	if err != nil {
-		log.Fatalf("error reading from %s: %v\n", fname, err)
+		return nil, fmt.Errorf("error reading from %s: %v\n", fname, err)
 	}
 	hashMap := make(map[string]string, 1000)
 	//Verbose.Printf("Loading from %s\n", fname)
@@ -71,7 +100,7 @@ func LoadSHA256asMap(fname string) (map[string]string, error) {
 		}
 		partRec, err := Split256(sline)
 		if err != nil {
-			log.Fatalf("Can't load line[%d] %q from %s\n", ndx, sline, fname)
+			return nil, fmt.Errorf("Can't load line[%d] %q from %s\n", ndx, sline, fname)
 		}
 		hashMap[partRec.SHA] = sline
 	}
@@ -87,7 +116,7 @@ func LoadSHA256asDirMap(fname string) (map[string]*DirNode, error) {
 	fmt.Printf("Loading SHA256 list from %s may take a while...\n", fname)
 	input, err := os.Open(fname)
 	if err != nil {
-		log.Fatalf("can't open file %s\n", fname)
+		return nil, fmt.Errorf("can't open file %s\n", fname)
 	}
 	scanner := bufio.NewScanner(input)
 	lineCt := 0
@@ -98,7 +127,7 @@ func LoadSHA256asDirMap(fname string) (map[string]*DirNode, error) {
 		}
 		sline := scanner.Text()
 		if err := scanner.Err(); err != nil {
-			log.Fatalf("error reading %s\n", fname)
+			return nil, fmt.Errorf("error reading %s\n", fname)
 		}
 		lineCt++
 		//Verbose.Printf("line[%d] = %q\n", lineCt, sline)
@@ -111,7 +140,7 @@ func LoadSHA256asDirMap(fname string) (map[string]*DirNode, error) {
 		sr, err := Split256(sline)
 		var fr FileRec = FileRec{R: sr, Touched: false}
 		if err != nil {
-			log.Fatalf("Can't load line[%d] %q from %s\n", lineCt, sline, fname)
+			return nil, fmt.Errorf("Can't load line[%d] %q from %s\n", lineCt, sline, fname)
 		}
 		dir := filepath.Dir(sr.Name)
 		if dir != "/" {
@@ -141,7 +170,7 @@ func LoadSHA256Names(fname string) ([]string, error) {
 	listOfNames := make([]string, 0, 100000)
 	input, err := os.Open(fname)
 	if err != nil {
-		log.Fatalf("can't open file %s\n", fname)
+		return nil, fmt.Errorf("can't open file %s\n", fname)
 	}
 	scanner := bufio.NewScanner(input)
 	lineCt := 0
@@ -149,7 +178,7 @@ func LoadSHA256Names(fname string) ([]string, error) {
 	for scanner.Scan() {
 		sline := scanner.Text()
 		if err := scanner.Err(); err != nil {
-			log.Fatalf("error reading from %s\n", fname)
+			return nil, fmt.Errorf("LoadSHA256Names(): error reading from %s\n", fname)
 		}
 		lineCt++
 		//Verbose.Printf("line[%d] = %q\n", line)
@@ -161,7 +190,7 @@ func LoadSHA256Names(fname string) ([]string, error) {
 		}
 		r, err := Split256(string(sline))
 		if err != nil {
-			log.Fatalf("split failed\n")
+			return nil, fmt.Errorf("split failed\n")
 		}
 		listOfNames = append(listOfNames, string(r.Name))
 		fileCt++

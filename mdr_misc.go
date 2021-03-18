@@ -1,5 +1,7 @@
 // mdr_misc.go (c) 2015 David Rook
 
+// +build !windows
+
 package mdr
 
 import (
@@ -12,39 +14,22 @@ import (
 	//"math/rand"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 )
-
-type Ints []int
-
-type IntPair struct {
-	X, Y int
-}
 
 var (
 	g_UnusualMode os.FileMode = os.ModeSymlink | os.ModeNamedPipe | os.ModeSocket | os.ModeDevice
 )
 
-// FlipCoin returns true randomly half the time
-// Test with mdr_test.go:Test_003
+// FlipCoin returns true with 50% probability
 func FlipCoin() bool {
+	// Test with mdr_test.go:Test_003
 	return GenFlipCoin()
 }
 
-// reverse a slice of bytes in place
-// Test with mdr_test.go:Test_006
-func Reverse(b []byte) {
-	first := 0
-	last := len(b) - 1
-	for first < last {
-		b[first], b[last] = b[last], b[first]
-		first++
-		last--
-	}
-}
-
-// singleCharRead might return newline if no other input
+// SingleCharRead might return newline if no other input
 //  otherwise first character if more than one on a line
 // ^D will cause EOF to be printed and ? as the char returned - better choice is ...
 func SingleCharRead() byte {
@@ -57,8 +42,9 @@ func SingleCharRead() byte {
 	return buf[0]
 }
 
-// used as helper with filters to collect args from input stream
-// limited to RAM for size of return []string
+// GetAllArgs is a helper with filters to collect args from input stream
+// limited to RAM for size of return []string.Note that if used with 'find' in
+// a pipeline it must wait till find is done to proceed.
 func GetAllArgs() []string {
 	rv := make([]string, 0, 1000)
 	f := os.Stdin // f is * osFile
@@ -92,48 +78,8 @@ func GetAllArgs() []string {
 	return rv
 }
 
-func ValidDecChar(c byte) bool {
-	var decchars []byte = []byte("0123456789")
-	for _, d := range decchars {
-		if c == d {
-			return true
-		}
-	}
-	return false
-}
-
-func ValidDecString(s string) bool {
-	for _, c := range s {
-		if !ValidDecChar(byte(c)) {
-			return false
-		}
-	}
-	return true
-}
-
-// Test_004
-func ValidHexChar(c byte) bool {
-	var hexchars []byte = []byte("0123456789abcdefABCDEF")
-	for _, h := range hexchars {
-		if c == h {
-			return true
-		}
-	}
-	return false
-}
-
-// Test_004
-func ValidHexString(s string) bool {
-	for _, c := range s {
-		if !ValidHexChar(byte(c)) {
-			return false
-		}
-	}
-	return true
-}
-
-// Test is Test_008
 func FileLength(fname string) (int64, error) {
+	// Test_?
 	stats, err := os.Stat(fname)
 	if err != nil {
 		fmt.Printf("mdr: Can't get fileinfo for %s\n", fname)
@@ -144,11 +90,12 @@ func FileLength(fname string) (int64, error) {
 }
 
 // ZRotate rotates a point about 0,0 (z axis).
-func (loc *Point) ZRotate(radians float64) {
+// intended for use in computer graphics (ring5 pkg)
+func (loc *Pointi) ZRotate(radians float64) {
 	if radians == 0.0 {
 		return
 	}
-	if (*loc == Point{0, 0}) {
+	if (*loc == Pointi{0, 0}) {
 		return
 	}
 	Verbose.Printf("ZRotate starts with loc(%v), turn by  %v radians --> ", loc, radians)
@@ -161,7 +108,7 @@ func (loc *Point) ZRotate(radians float64) {
 }
 
 // RotateOnPivotPt rotate a point using another point as a pivot (mimic mechanical compass drawing).
-func (loc *Point) RotateOnPivotPt(p Point, radians float64) {
+func (loc *Pointi) RotateOnPivotPt(p Pointi, radians float64) {
 	loc.X -= p.X
 	loc.Y -= p.Y
 	loc.ZRotate(radians)
@@ -172,8 +119,8 @@ func (loc *Point) RotateOnPivotPt(p Point, radians float64) {
 // Cartesian returns Cartesian point from polar point.
 // NoteBene: NOT the usual [in trig x=cos(a) y=sin(a)]
 // because y axis is inverted in 'conventional' computer graphics.
-func Cartesian(angle, radius float64) Point {
-	var rv Point
+func Cartesian(angle, radius float64) Pointi {
+	var rv Pointi
 	rv.X = int(math.Sin(angle) * radius)
 	rv.Y = int(math.Cos(angle) * radius)
 	return rv
@@ -185,8 +132,8 @@ func Cartesian(angle, radius float64) Point {
 //
 
 // Polar returns the polar coords (angle and radius) for a Cartesian point.
-func Polar(loc Point) (theta, r float64) {
-	if (loc == Point{0, 0}) {
+func Polar(loc Pointi) (theta, r float64) {
+	if (loc == Pointi{0, 0}) {
 		return 0, 0 // The angle is actually undefined but this will do.
 	}
 	x, y := float64(loc.X), float64(loc.Y)
@@ -198,9 +145,14 @@ func Radians(degrees float64) float64 {
 	return degrees * RadiansPerDegree
 }
 
+// choice of func name could be better since we'll need a floating version
+// at some time in the future.
+
+// TODO(mdr): maybe func (p Pointe) Pointi() Pointi { ... }
+
 // PolarAngle returns the angle produced by a line from Point{0,0} to loc.
-func PolarAngle(loc Point) float64 {
-	if (loc == Point{0, 0}) {
+func PolarAngle(loc Pointi) float64 {
+	if (loc == Pointi{0, 0}) {
 		// possibly not an error in some cases so
 		return 0.0 // The angle is actually undefined but this will do.
 	}
@@ -304,6 +256,23 @@ func HasInterface(hostIPStr string) bool {
 		}
 	}
 	return false
+}
+
+// convert() dequotes "123.4" and returns a float64
+func DequoteFloat64(s string) (float64, error) {
+	s = strings.Trim(s, `" \r\n\t`)
+	x, err := strconv.ParseFloat(s, 64)
+	return x, err
+}
+
+// ============================================================================
+
+func CloseToF64(a, b, near float64) bool {
+	dif := a - b
+	if dif < 0 {
+		dif = -dif
+	}
+	return dif <= near
 }
 
 // <end>

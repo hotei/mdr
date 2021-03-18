@@ -5,7 +5,6 @@ package mdr
 import (
 	"errors"
 	"fmt"
-	"log"
 )
 
 //  ----------------------------------------
@@ -35,16 +34,17 @@ var (
 )
 
 func init() {
-	Verbose = false
+	Verbose.Printf("mdr.datatable.go init() entry\n")
+	defer Verbose.Printf("mdr.datatable.go init() exit\n")
 }
 
 func (d *Table) Setup() error {
 	if len(d.Name) <= 0 {
-		fmt.Printf("table really should be named\n")
+		Verbose.Printf("table really should be named\n")
 	}
 	length := len(d.Data)
 	if length < 2 {
-		fmt.Printf("table not valid, length must be >= 2 but we found %d\n", length)
+		Verbose.Printf("table not valid, length must be >= 2 but we found %d\n", length)
 		return InvalidTableError
 	}
 	last := length - 1
@@ -62,7 +62,7 @@ func (d *Table) Setup() error {
 		// table left values must increase each time in a valid table
 		if i > 0 {
 			if d.Data[i].Left <= d.Data[i-1].Left {
-				fmt.Printf("table not valid, left values must increase with each row\n")
+				Verbose.Printf("table not valid, left values must increase with each row\n")
 				return InvalidTableError
 			}
 		}
@@ -88,7 +88,7 @@ func (d *Table) Setup() error {
 
 func (d *Table) Dump() {
 	if !d.isSetup {
-		log.Printf("Table %s was not setup, doing it now...\n", d.Name)
+		Verbose.Printf("Table %s was not setup, doing it now...\n", d.Name)
 		d.Setup()
 	}
 	fmt.Printf("\nTable Name = %s\n", d.Name)
@@ -127,7 +127,7 @@ func interp(x1, y1, x2, y2, v float64) (rc float64, err error) {
 
 func (d *Table) Eval(v float64) (rc float64, err error) {
 	if !d.isSetup {
-		log.Printf("Table %s was not setup, doing it now...\n", d.Name)
+		Verbose.Printf("Table %s was not setup, doing it now...\n", d.Name)
 		d.Setup()
 	}
 	length := len(d.Data)
@@ -189,7 +189,7 @@ func (d *Table) Eval(v float64) (rc float64, err error) {
 // returns multiple hits where appropriate
 func (d *Table) ReverseEval(val float64) (rc []float64, err error) {
 	if !d.isSetup {
-		log.Printf("Table %s was not setup, doing it now...\n", d.Name)
+		Verbose.Printf("Table %s was not setup, doing it now...\n", d.Name)
 		d.Setup()
 	}
 	var rv float64

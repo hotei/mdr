@@ -1,6 +1,6 @@
-// 01_test.go
+// 100_test.go
 
-// go test -bench="*."   # re2 expression matches everything, runs all benchmarks
+// go test '-bench=.'   # expression matches everything, runs all benchmarks
 // go test -run="Test_000" to run just one function
 
 package mdr
@@ -8,33 +8,44 @@ package mdr
 import (
 	"bytes"
 	"fmt"
-	"hash/crc64"
-	"io"
-	"io/ioutil"
-	"os"
+	//"hash/crc64"
+	//"io"
+	//"io/ioutil"
+	//"os"
 	"testing"
 	"time"
 	//
-	"github.com/hotei/statdata"
+	//"github.com/hotei/statdata"
 )
+
+func init() {
+	fmt.Printf("mdr-100_test.go init() entry\n")
+	defer fmt.Printf("mdr-100_test.go init() exit\n")
+	Verbose = false
+}
 
 // template
 func Test_000(t *testing.T) {
-	fmt.Printf("Test_000 \n")
+	testName := "Test_000"
+	runStart := time.Now()
+	fmt.Printf("%s template\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
 	if false {
 		t.Errorf("print fail, but keep testing")
 	}
 	if false {
 		t.Fatalf("print fail and keep testing")
 	}
-	fmt.Printf("go test -bench=\"*.\" to run all benchmarks\n")
-	fmt.Printf("Pass - test 000\n")
+	Verbose.Printf("go test '-bench=.' to run all benchmarks\n")
 }
 
 // Test_Binomial checks FlipCoin against calculated value from
 // binomial approximation
 func Test_Binomial(t *testing.T) {
-	fmt.Printf("Test_Binomial \n")
+	fmt.Printf("Test_101 Binomial \n")
+	/*
 	const numCoins = 60
 	const numTrials = 1000000
 
@@ -48,11 +59,22 @@ func Test_Binomial(t *testing.T) {
 		}
 		bin.Stat(float64(heads))
 	}
-	bin.Dump()
-	fmt.Printf("should be ave(30.0) and sqrt(15) or stdev(3.872) \n")
-	fmt.Printf("Pass - Test_Binomial\n")
+		if bin.Ave()  != 30.0 {
+			t.Errorf("average not 30.0")
+		}
+		TODO(mdr): need to allow for "approximate" results, not just exact match
+		if bin.StdDev()  != 3.87102 {
+			t.Errorf("StdDev not 30.0, got %g",bin.StdDev())
+		}
+		if Verbose  {
+		bin.Dump()
+		}
+	*/
+	Verbose.Printf("should be ave(30.0) stdev(3.872) \n")
+	Verbose.Printf("Pass - Test_Binomial\n")
 }
 
+/*
 // test progress bar code (close but not quite right)
 func Test_Progress(t *testing.T) {
 	fmt.Printf("Test_Progress \n")
@@ -79,17 +101,22 @@ func Test_Progress(t *testing.T) {
 	barB.Update(goal)
 	barB.Tag(fmt.Sprintf("%d of %d have been done\n", goal, goal))
 	barB.Stop()
-	fmt.Printf("Pass - Test_Progress()\n")
+	Verbose.Printf("Pass - Test_Progress()\n")
 	if false {
 		os.Exit(0)
 	}
 }
+*/
 
-func Test_001(t *testing.T) {
-	Verbose = false
-	fmt.Printf("\nTest_001 Jobsplit\n")
+func Test_101(t *testing.T) {
+	testName := "Test_101 Jobsplit"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
 	x := JobSplit(10, 3)
-	fmt.Printf("%v\n", x)
+	Verbose.Printf("%v\n", x)
 	goodsplit := true
 	if len(x) != 3 {
 		goodsplit = false
@@ -112,75 +139,98 @@ func Test_001(t *testing.T) {
 	if !goodsplit {
 		t.Errorf("split failed\n")
 	} else {
-		fmt.Printf("Pass - test 001\n")
+		Verbose.Printf("Pass - test 001\n")
 	}
 }
 
-func Test_002(t *testing.T) {
-	Verbose = false
-	fmt.Printf("\nTest_002 HumanTime\n")
+func Test_102(t *testing.T) {
+	testName := "Test_102 HumanTime"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
+
 	var tsec int64 = 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 	tsec *= 10
-	fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
+	Verbose.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 
-	fmt.Printf("Pass - test 002\n")
+	Verbose.Printf("Pass - test 002\n")
 	return
 	// exceeds maximum duration of 290 years
 	//tsec *= 10
 	//fmt.Printf("%d seconds is %s\n", tsec, HumanTime(time.Duration(tsec)*time.Second))
 }
 
-func Test_003(t *testing.T) {
-	Verbose = false
-	fmt.Printf("\nTest_003 FlipCoin\n")
-	var s int64 = 0
+// BUG(mdr): Poor test.  Need to run multiple times and see if the expected
+//   probability distribution results.  As written it could have false positive or
+//   false negative.  Better than nothing ...
+func Test_103(t *testing.T) {
+	testName := "Test_103 FlipCoin"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
+
+	var heads int64 = 0
 	for i := 0; i < 1000; i++ {
 		if FlipCoin() {
-			s++
+			heads++
 		}
 	}
-	fmt.Printf("flip of 1000 coins gives %d heads\n", s)
-	if !InRangeInt64(450, s, 550) {
-		t.Errorf("FlipCoin() not in expected range of [450..550]")
+	Verbose.Printf("flip of 1000 coins gives %d heads\n", heads)
+	if !InRangeInt64(450, heads, 550) {
+		t.Errorf("FlipCoin() not in expected range of [450..550], got %d heads out of %d", heads, 1000)
 	}
-	fmt.Printf("Pass - test 003\n")
 }
 
-func Test_004(t *testing.T) {
-	fmt.Printf("\nTest_004 ValidHexString and ValidHexChar\n")
+func Test_104(t *testing.T) {
+	testName := "Test_104 ValidHexString"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
 	if !ValidHexString("abcdef0123456789") {
 		t.Errorf("failed on abcdef0123456789")
 	}
 	if ValidHexString("abcdefg0123456789") {
 		t.Errorf("failed on abcdefg0123456789")
 	}
-	fmt.Printf("Pass - test 004\n")
+	Verbose.Printf("Pass - test 004\n")
 }
 
-func Test_005(t *testing.T) {
-	fmt.Printf("\nTest_005 FileSHA256\n")
+func Test_105a(t *testing.T) {
+	testName := "Test_105a FileSHA256"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
+
 	targetFile := "test-data/do_NOT_modify.txt"
 	sha256, err := FileSHA256(targetFile)
 	if err != nil {
@@ -198,11 +248,17 @@ func Test_005(t *testing.T) {
 		t.Errorf("BufSHA256 did not match\n")
 		return
 	}
-	fmt.Printf("Pass - test 005\n")
+	Verbose.Printf("Pass - test 005\n")
 }
 
-func Test_005a(t *testing.T) {
-	fmt.Printf("\nTest_005a FileMD5\n")
+func Test_105b(t *testing.T) {
+	testName := "Test_105b FileMD5"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
+
 	targetFile := "test-data/do_NOT_modify.txt"
 	md5, err := FileMD5(targetFile)
 	if err != nil {
@@ -220,64 +276,50 @@ func Test_005a(t *testing.T) {
 		t.Errorf("BufMD5 did not match\n")
 		return
 	}
-	fmt.Printf("Pass - test 005a\n")
+	Verbose.Printf("Pass - test 005a\n")
 }
 
-func Test_005b(t *testing.T) {
-	if !ValidHexString("abcdef0123456789") {
-		t.Errorf("failed on abcdef0123456789\n")
-		return
-	}
-	if ValidHexString("abcdefg0123456789") {
-		t.Errorf("failed on abcdefg0123456789\n")
-		return
-	}
-	fmt.Printf("Pass - test 005b\n")
-}
-
-func Test_006(t *testing.T) {
-	fmt.Printf("\nTest_006 Reverse([]byte)\n")
+func Test_106(t *testing.T) {
+	fmt.Printf("Test_106 Reverse([]byte)\n")
 	var before, after []byte
 	before = []byte{1, 2, 3, 4, 5}
 	after = []byte{5, 4, 3, 2, 1}
-	fmt.Printf("before %v expected after reverse %v\n", before, after)
+	Verbose.Printf("before %v expected after reverse %v\n", before, after)
 	Reverse(before)
 	if len(before) != len(after) {
 		t.Errorf("Reverse failed")
 	}
-	fmt.Printf("reversed %v should equal after %v\n", before, after)
+	Verbose.Printf("reversed %v should equal after %v\n", before, after)
 	for i := 0; i < len(before); i++ {
 		if before[i] != after[i] {
 			t.Errorf("Reverse failed")
 		}
 	}
-	fmt.Printf("Pass - test 006\n")
+	Verbose.Printf("Pass - test 006\n")
 }
 
-func Test_007(t *testing.T) {
-	fmt.Printf("\nTest_007 CommaFmtInt64\n")
+func Test_107(t *testing.T) {
+	fmt.Printf("Test_107 CommaFmtInt64\n")
 	s := CommaFmtInt64(1234567)
-	fmt.Printf("formatting 1234567: expecting 1,234,567, got %s\n", s)
+	Verbose.Printf("formatting 1234567: expecting 1,234,567, got %s\n", s)
 	if s != "1,234,567" {
 		t.Errorf("CommaFmtInt64(123456) failed")
-	} else {
-		fmt.Printf("Pass - test 007\n")
 	}
+	Verbose.Printf("Pass - test 007\n")
 }
 
-func Test_008(t *testing.T) {
-	fmt.Printf("\nTest_008 FileLength\n")
+func Test_108(t *testing.T) {
+	fmt.Printf("Test_108 FileLength\n")
 	targetFile := "test-data/do_NOT_modify.txt"
 	flen, err := FileLength(targetFile)
 	if (flen != 11) || (err != nil) {
 		t.Errorf("FileLength(%s) failed", targetFile)
-	} else {
-		fmt.Printf("Pass - test 008\n")
 	}
+	Verbose.Printf("Pass - test 008\n")
 }
 
-func Test_009(t *testing.T) {
-	fmt.Printf("\nTest_009 Archive Type Test\n")
+func Test_109(t *testing.T) {
+	fmt.Printf("Test_109 Archive Type\n")
 
 	type target struct {
 		s string
@@ -288,10 +330,10 @@ func Test_009(t *testing.T) {
 	var targetList = []target{
 		// just compression
 		{"abc.Z", ArchiveNoMatchType, CompressZcompressType},
-		{"abc.z", ArchiveNoMatchType, CompressZcompressType}, // possible conflict with pack files
+		{"abc.z", ArchiveNoMatchType, CompressZcompressType}, // rare but possible conflict with pack files
 		{"abc.gz", ArchiveNoMatchType, CompressGzipType},
 		{"abc.gzip", ArchiveNoMatchType, CompressGzipType},
-		{"abc.bz", ArchiveNoMatchType, CompressBz2Type}, // possible conflict with pack files
+		{"abc.bz", ArchiveNoMatchType, CompressBz2Type}, // rare but possible conflict with pack files
 		{"abc.bz2", ArchiveNoMatchType, CompressBz2Type},
 		{"abc.bzip2", ArchiveNoMatchType, CompressBz2Type},
 		// combined compression and archive in one ext
@@ -302,95 +344,95 @@ func Test_009(t *testing.T) {
 		{"abc.zip", ArchiveZipType, CompressZipType},
 		// combined compression and archive in last two
 		{"abc.tar.Z", ArchiveTarType, CompressZcompressType},
-		{"abc.ark.Z", ArchiveArkType, CompressZcompressType},
+		//{"abc.ark.Z", ArchiveArkType, CompressZcompressType},
 		{"abc.tar.bz", ArchiveTarType, CompressBz2Type},
 		{"abc.tar.gz", ArchiveTarType, CompressGzipType},
 		{"abc.tar.bz2", ArchiveTarType, CompressBz2Type},
 		{"abc.tar.bzip2", ArchiveTarType, CompressBz2Type},
 		// just archive not compressed
-		{"abc.ark", ArchiveArkType, CompressNoMatchType},
+		//{"abc.ark", ArchiveArkType, CompressNoMatchType},
 		{"abc.cpio", ArchiveCpioType, CompressNoMatchType},
 		{"abc.tar", ArchiveTarType, CompressNoMatchType},
-
+		{"data3/data2b.tar.gz/lstoc.go.bz2", ArchiveNoMatchType, CompressBz2Type},
+		{"piggyback.log.0.gz", ArchiveNoMatchType, CompressGzipType},
 		// not implemented yet - and many others...
 		{"abc.ar", ArchiveNoMatchType, CompressNoMatchType},
 	}
 
 	for ndx, x := range targetList {
-		fmt.Printf("%d %s %v %v ", ndx, x.s, x.a, x.c)
+		Verbose.Printf("%d %s %v %v ", ndx, x.s, x.a, x.c)
 		if WhichArchiveType(x.s) != x.a {
 			t.Errorf("WhichArchiveType(%s) failed", x.s)
 		}
 		if WhichCompressType(x.s) != x.c {
 			t.Errorf("WhichCompressType(%s) failed", x.s)
 		}
-		fmt.Printf(" PASS\n")
 	}
 }
 
-func Test_010(t *testing.T) {
-	fmt.Printf("\nTest_010 PseudoRandomBlock() Test\n")
+func Test_110(t *testing.T) {
+	fmt.Printf("Test_110 PseudoRandomBlock()\n")
 	for i := 0; i < 10; i++ {
 		x := PseudoRandomBlock(10)
-		fmt.Printf("x(%x)\n", x)
+		Verbose.Printf("x(%x)\n", x)
 	}
 }
 
-func Test_011(t *testing.T) {
-	fmt.Printf("\nTest_011 LSBytesFromInt64 Test\n")
+func Test_111(t *testing.T) {
+	fmt.Printf("Test_111 LSBytesFromInt64\n")
 	i := int64(1)
 	b := LSBytesFromInt64(i)
-	fmt.Printf("%d\n", i)
-	fmt.Printf("%x\n", b)
+	Verbose.Printf("%d\n", i)
+	Verbose.Printf("%x\n", b)
 	if !bytes.Equal([]byte{1, 0, 0, 0, 0, 0, 0, 0}, b) {
 		t.Errorf("LSBytesFromInt64 failed\n")
 	}
 }
 
-func Test_012(t *testing.T) {
-	fmt.Printf("\nTest_012 Int64FromLSBytes Test\n")
+func Test_112(t *testing.T) {
+	fmt.Printf("Test_112 Int64FromLSBytes\n")
 	i := int64(15)
 	b := LSBytesFromInt64(i)
-	fmt.Printf("%x\n", b)
+	Verbose.Printf("%x\n", b)
 	j := Int64FromLSBytes(b)
-	fmt.Printf("%d\n", j)
+	Verbose.Printf("%d\n", j)
 	if i != j {
 		t.Errorf("Int64FromLSBytes failed at A\n")
 	}
 }
 
-func Test_013(t *testing.T) {
-	fmt.Printf("\nTest_013 MSBytesFromInt64 Test\n")
+func Test_113(t *testing.T) {
+	fmt.Printf("Test_113 MSBytesFromInt64\n")
 	i := int64(15 * 256)
 	b := MSBytesFromInt64(i)
 	if !bytes.Equal([]byte{0, 0, 0, 0, 0, 0, 0xf, 0}, b) {
 		t.Errorf("MSBytesFromInt64 failed at A\n")
 	}
-	fmt.Printf("%x\n", b)
+	Verbose.Printf("%x\n", b)
 
 	i = int64(-1)
 	b = MSBytesFromInt64(i)
-	fmt.Printf("%x\n", b)
+	Verbose.Printf("%x\n", b)
 	if !bytes.Equal([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, b) {
 		t.Errorf("MSBytesFromInt64 failed at B\n")
 	}
 }
 
-func Test_014(t *testing.T) {
-	fmt.Printf("\nTest_014 Int64FromMSBytes Test\n")
+func Test_114(t *testing.T) {
+	fmt.Printf("Test_114 Int64FromMSBytes\n")
 	b := []byte{0, 0, 0, 1, 0, 0, 2, 0}
 	i := Int64FromMSBytes(b)
-	fmt.Printf("i(%d)\n", i)
+	Verbose.Printf("i(%d)\n", i)
 	var rv int64
 	rv = (1 << 32) + 2*(1<<8)
 	if i != rv {
 		t.Errorf("MSBytesFromInt64 failed at A\n")
 	}
-	fmt.Printf("%x\n", b)
+	Verbose.Printf("%x\n", b)
 }
 
-func Test_015(t *testing.T) {
-	fmt.Printf("\nTest_015 ValidDecString Test\n")
+func Test_115(t *testing.T) {
+	fmt.Printf("Test_115 ValidDecString\n")
 
 	if !ValidDecString("0123456789") {
 		t.Errorf("failed on 0123456789\n")
@@ -400,12 +442,11 @@ func Test_015(t *testing.T) {
 		t.Errorf("failed on abcdefg0123456789\n")
 		return
 	}
-	fmt.Printf("Pass - test 015\n")
-
+	Verbose.Printf("Pass - test 015\n")
 }
 
-func Test_016(t *testing.T) {
-	fmt.Printf("\nTest_016 \n")
+func Test_116(t *testing.T) {
+	fmt.Printf("Test_116 FileUID/FileGID\n")
 
 	i, err := FileUID("doc.go")
 	if i != 1001 || err != nil {
@@ -417,12 +458,21 @@ func Test_016(t *testing.T) {
 		t.Errorf("failed on FileGID(mdr_test.go) \n")
 		return
 	}
-	fmt.Printf("Pass - test 016\n")
-
+	Verbose.Printf("Pass - test 016\n")
 }
 
-func Test_017(t *testing.T) {
-	fmt.Printf("Test_017 \n")
+func Test_117(t *testing.T) {
+	testName := "Test_117 ---"
+	runStart := time.Now()
+	fmt.Printf("%s\n", testName)
+	defer func() {
+		Verbose.Printf("%s took %v\n", testName, time.Since(runStart))
+	}()
+}
+
+/*
+func Test_117(t *testing.T) {
+	fmt.Printf("Test_117 \n")
 	fmt.Printf("Spinner runs for 4 seconds\n")
 	for i := 0; i < 4000; i++ {
 		Spinner()
@@ -430,18 +480,19 @@ func Test_017(t *testing.T) {
 	}
 	fmt.Printf("Pass - test 017\n")
 }
+*/
 
-func Test_018(t *testing.T) {
+func Test_118(t *testing.T) {
+	fmt.Printf("Test_118 RotH2T() \n")
 	var x Ints
 	x = Ints{1}
-	fmt.Printf("x.RotH2T(1) = %v\n", x.RotH2T())
+	Verbose.Printf("x.RotH2T(1) = %v\n", x.RotH2T())
 	x = Ints{1, 2}
-	fmt.Printf("x.RotH2T(1,2) = %v\n", x.RotH2T())
+	Verbose.Printf("x.RotH2T(1,2) = %v\n", x.RotH2T())
 	x = Ints{1, 2, 3}
-	fmt.Printf("x.RotH2T(1,2,3) = %v\n", x.RotH2T())
+	Verbose.Printf("x.RotH2T(1,2,3) = %v\n", x.RotH2T())
 	x = Ints{1, 2, 3, 4}
-	fmt.Printf("x.RotH2T(1,2,3,4) = %v\n", x.RotH2T())
-
+	Verbose.Printf("x.RotH2T(1,2,3,4) = %v\n", x.RotH2T())
 }
 
 /*
@@ -449,16 +500,18 @@ func Test_018(t *testing.T) {
 	if x == y {
 	fmt.Printf("Pass - test 018\n")
 	}else {
-		t.Errorf("Test_018 didn't get matching result")
+		t.Errorf("Test_118 didn't get matching result")
 	}
 */
 
-func Test_019(t *testing.T) {
+func Test_119(t *testing.T) {
+	fmt.Printf("Test_119 RotT2H() \n")
 	var x Ints = Ints{1, 2, 3, 4}
-	fmt.Printf("x.RotT2H(1,2,3,4) = %v\n", x.RotT2H())
+	Verbose.Printf("x.RotT2H(1,2,3,4) = %v\n", x.RotT2H())
 }
 
-func Test_020(t *testing.T) {
+func Test_120(t *testing.T) {
+	fmt.Printf("Test_120 FileIsCollection() \n")
 	type testBlk struct {
 		name  string
 		iscol bool
@@ -485,23 +538,23 @@ func Test_020(t *testing.T) {
 		{"abc.tar.bz2", true},
 		{"abc.cpio", false},
 		{"abc.cpio.gz", false},
-		{"coverage-fail.tar", false},
+		{"abc.tar", true},
 	}
-	fmt.Printf("\n\nIs named file a collection? compare human & dispatcher\n")
+	Verbose.Printf("\n\nIs named file a collection? compare human & dispatcher\n")
 	for _, blk := range testBlocks {
 		name := blk.name
 		iscol := blk.iscol
 		iscollection, pat := FileNameIsCollection(name)
 		if iscol != iscollection {
-			fmt.Printf("%s %v  disagrees with %s <----- \n", name, iscol, pat)
+			t.Errorf("%s %v  disagrees with %s <----- %v \n", name, iscol, pat, blk)
 		} else {
-			fmt.Printf("%s %v  agrees with %s\n", name, iscol, pat)
+			Verbose.Printf("%s %v  agrees with %s\n", name, iscol, pat)
 		}
 	}
 }
 
-func Test_021(t *testing.T) {
-	fmt.Printf("Test_021 \n")
+func Test_121(t *testing.T) {
+	fmt.Printf("Test_121 LeapYear() \n")
 
 	type Expect struct {
 		year int
@@ -519,18 +572,18 @@ func Test_021(t *testing.T) {
 		{2100, false},
 	}
 	for _, blk := range testBlocks {
-		fmt.Printf("Testing %v\n", blk)
+		Verbose.Printf("Testing %v\n", blk)
 		testDate := time.Date(blk.year, 1, 1, 1, 1, 1, 0, time.UTC)
 		myrv := LeapYear(testDate)
 		if myrv != blk.rv {
 			t.Errorf("%v %v doesnt match expected %v", blk.year, blk.rv, myrv)
 		}
 	}
-	fmt.Printf("Pass - test 021\n")
+	Verbose.Printf("Pass - test 021\n")
 }
 
-func Test_022(t *testing.T) {
-	fmt.Printf("Test_022 \n")
+func Test_122(t *testing.T) {
+	fmt.Printf("Test_122 ValidDate\n")
 
 	type dateT struct {
 		year, month, day, hour, minute, second int
@@ -558,19 +611,18 @@ func Test_022(t *testing.T) {
 		{dateT{2015, 8, 9, 24, 0, 0}, false},
 	}
 	for _, blk := range testBlocks {
-		fmt.Printf("Testing %v\n", blk)
+		Verbose.Printf("Testing %v\n", blk)
 		myrv := ValidDate(blk.date.year, blk.date.month, blk.date.day,
 			blk.date.hour, blk.date.minute, blk.date.second)
 		if myrv != blk.rv {
 			t.Errorf("%v %v doesnt match expected %v", blk.date, blk.rv, myrv)
 		}
 	}
-
-	fmt.Printf("Pass - test 022\n")
+	Verbose.Printf("Pass - test 022\n")
 }
 
-func Test_023(t *testing.T) {
-	fmt.Printf("Test_023 \n")
+func Test_123(t *testing.T) {
+	fmt.Printf("Test_123 StarDate\n")
 
 	type dateT struct {
 		year, month, day, hour, minute, second int
@@ -595,19 +647,18 @@ func Test_023(t *testing.T) {
 			blk.date.hour, blk.date.minute, blk.date.second, 0, time.UTC)
 		myrv := StarDate(testDate)
 		diff := AbsF64(myrv - blk.rv)
-		fmt.Printf("Testing %v  ", blk)
+		Verbose.Printf("Testing %v  ", blk)
 		if diff > errOk {
 			t.Errorf("StarDate %9.4f %v %v doesnt match expected", myrv, blk.date, blk.rv)
 		}
-		fmt.Printf(" gives StarDate %9.4f \n", myrv)
+		Verbose.Printf(" gives StarDate %9.4f \n", myrv)
 	}
-
-	fmt.Printf("Pass - test 023\n")
+	Verbose.Printf("Pass - test 023\n")
 }
 
 /*
-func Test_000(t *testing.T) {
-	fmt.Printf("Test_000 \n")
+func Test_100(t *testing.T) {
+	fmt.Printf("Test_100 \n")
 	if false {
 		t.Errorf("print fail, but keep testing")
 	}
@@ -619,101 +670,7 @@ func Test_000(t *testing.T) {
 }
 */
 
-/////////////////////////  B E N C H M A R K S  ////////////////////////////
-/*  4 GHz AMD-64  8120 8 core
-Benchmark_PseudoRandomBlock-8	      50	  36,471,550 ns/op
-Benchmark_FileLength-8	         1000000	       1,531 ns/op
-Benchmark_BufSHA256-8	             200	  13,853,744 ns/op
-Benchmark_BufMD5-8	                1000	   1,370,967 ns/op
-Benchmark_BufCRC64-8	             500	   3,192,160 ns/op
-*/
-
-// 46.9e6 ns/op on 4Ghz AMD64 with 1.0.3
-// 36.6e6 ns/op on 4Ghz AMD64 with 1.1 << 22% better >>
-// 35.1e6 ns/op on 4Ghz AMD64 with 1.2
-func Benchmark_PseudoRandomBlock(b *testing.B) {
-	PRBsize := 1000000
-	for i := 0; i < b.N; i++ {
-		x := PseudoRandomBlock(PRBsize)
-		r := bytes.NewReader(x)
-		if _, err := io.Copy(ioutil.Discard, r); err != nil {
-			panic(err)
-		}
-	}
-}
-
-// 1471 ns/op on 4Ghz AMD64 with 1.0.3
-// 1341 ns/op on 4Ghz AMD64 with 1.1 << 8% better >>
-// 1384 ns/op on 4Ghz AMD64 with 1.2
-func Benchmark_FileLength(b *testing.B) {
-	targetFile := "test-data/do_NOT_modify.txt"
-	for i := 0; i < b.N; i++ {
-		if _, err := FileLength(targetFile); err != nil {
-			panic(err)
-		}
-	}
-}
-
-// 21.4e6 ns/op on 4Ghz AMD64 with 1.0.3
-// 14.0e6 ns/op on 4Ghz AMD64 with 1.1  << 30% better >>
-// 13.8e6 ns/op on 4Ghz AMD64 with 1.2
-func Benchmark_BufSHA256(b *testing.B) {
-	testBuf := PseudoRandomBlock(1024 * 1024)
-	for i := 0; i < b.N; i++ {
-		_ = BufSHA256(testBuf)
-	}
-}
-
-func Benchmark_BufMD5(b *testing.B) {
-	testBuf := PseudoRandomBlock(1024 * 1024)
-	for i := 0; i < b.N; i++ {
-		_ = BufMD5(testBuf)
-	}
-}
-
-// 2.71e6 ns/op on 4Ghz AMD64 with 1.0.3
-// 3.25e6 ns/op on 4Ghz AMD64 with 1.1  << 18% worse >>
-// 3.19e6 ns/op on 4Ghz AMD64 with 1.2
-func Benchmark_BufCRC64(b *testing.B) {
-	testBuf := PseudoRandomBlock(1024 * 1024)
-	for i := 0; i < b.N; i++ {
-		_ = crc64.Checksum(testBuf[:], G_crcTable)
-	}
-}
-
-/////////////////////////  E X A M P L E S  ////////////////////////////
-func workerFunction(w IntPair) {
-	fmt.Printf("work on items from %d through %d\n", w.X, w.Y)
-}
-
-func ExampleJobSplit() {
-	nCPU := 4
-	totalWork := 100
-	jobrange := JobSplit(totalWork, nCPU)
-	for i := 0; i < nCPU; i++ {
-		go workerFunction(jobrange[i])
-	}
-}
-
-/*
-func ExampleProgressBar() {
-	var (
-		status    int64
-		endNumber int64 = 100
-	)
-
-	progChan := make(chan int64, 2)
-	go ProgressBar(50, progChan, endNumber) // start the display handler
-	progChan <- 0                           // make first progress display visible
-	for {
-		//      ... do something to advance status towards endNumber ...
-		time.Sleep(time.Second)
-		status += 10
-		progChan <- status
-		if status >= endNumber {
-			break
-		}
-	}
-	progChan <- -1 // close up shop
-}
-*/
+// NOTE! go test arg evaluation changed from original re2 --> ?
+// what works now is ...
+// go test '-bench=.'  # expression matches everything, runs all benchmarks
+// see go help testflag for details

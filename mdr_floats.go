@@ -11,7 +11,7 @@ func AbsF64(a float64) float64 {
 }
 
 // true IFF a <= b <= c || a >= b >= c, note a < c not required
-func InRangeF(a, b, c float64) bool {
+func InRangeF64(a, b, c float64) bool {
 	if a > c { // swap bounds if necessary to get a < b < c
 		a, c = c, a
 	}
@@ -25,7 +25,7 @@ func InRangeF(a, b, c float64) bool {
 }
 
 // Return the lo and hi of given array
-func RangeLoHi64(v []float64) (lo, hi float64) {
+func RangeLoHiF64Slice(v []float64) (lo, hi float64) {
 	vlen := len(v)
 	if vlen <= 0 {
 		// warn?
@@ -41,4 +41,18 @@ func RangeLoHi64(v []float64) (lo, hi float64) {
 		}
 	}
 	return lo, hi
+}
+
+// true IFF a <= b <= c || a >= b >= c, note a < c not required
+func ForceRangeF64(a, b, c float64) float64 {
+	if a > c { // swap bounds if necessary to get a < b < c
+		a, c = c, a
+	}
+	if b < a {
+		return a
+	}
+	if b > c {
+		return c
+	}
+	return b
 }

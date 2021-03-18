@@ -75,8 +75,10 @@ If you want details you can see them at this link:
 </a>
 
 ### Change Log
-* 2015-08-18 builds with 1.5rc1
-  * added Travis
+* 2020-02-01 built with go 1.15.7 ok
+* 2020-02-24 built with go 1.13.7 ok
+* 2015-08-18 builds with 1.5
+  * added Travis (but not updating it of late)
 * 2015-05-01 updated progress bar functions
   * builds with 1.4.2
 * 2013-04-10 updated docs, posted at github.com/hotei/MDR.git
@@ -98,7 +100,7 @@ License
 -------
 The 'mdr' go package is distributed under the Simplified BSD License:
 
-> Copyright (c) 2010-2015 David Rook. All rights reserved.
+> Copyright (c) 2010-2021 David Rook. All rights reserved.
 > 
 > Redistribution and use in source and binary forms, with or without modification, are
 > permitted provided that the following conditions are met:

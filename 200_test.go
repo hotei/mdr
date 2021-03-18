@@ -1,4 +1,4 @@
-// d02_test.go
+// 200_test.go
 
 package mdr
 
@@ -12,18 +12,18 @@ import (
 )
 
 func Test_200(t *testing.T) {
-	fmt.Printf("Test_000 starting\n")
+	fmt.Printf("Test_200 template\n")
 	if false {
 		t.Errorf("print fail, but keep testing")
 	}
 	if false {
 		t.Fatalf("print fail and keep testing")
 	}
-	fmt.Printf("Pass - test_000\n")
+	Verbose.Printf("Pass - test_200\n")
 }
 
 func Test_201(t *testing.T) {
-	fmt.Printf("Test_001 starting\n")
+	fmt.Printf("Test_201 tables\n")
 
 	mytable := new(Table)
 	mytable.Name = "test table"
@@ -44,7 +44,9 @@ func Test_201(t *testing.T) {
 	}
 
 	ForceRangeFlag = false
-	mytable.Dump()
+	if Verbose {
+		mytable.Dump()
+	}
 	rv, err = mytable.Eval(0.0)
 	if err != nil {
 		t.Errorf("Eval() failed with %v\n", err)
@@ -111,12 +113,12 @@ func Test_201(t *testing.T) {
 	if rv != 0.0 {
 		t.Errorf("failed to force when outside the high end of all DblPairs")
 	}
-	fmt.Printf("Pass - test_001\n")
+	Verbose.Printf("Pass - test_201\n")
 }
 
 func Test_202(t *testing.T) {
-	fmt.Printf("Test_002 starting \n")
-	fmt.Printf("should get errors trying to use invalid tables \n")
+	fmt.Printf("Test_202 table setup \n")
+	Verbose.Printf("table.Setup() should get errors trying to use invalid tables \n")
 	mytable := new(Table)
 	mytable.Name = "test table"
 	var err error
@@ -153,12 +155,12 @@ func Test_202(t *testing.T) {
 		t.Errorf("Setup() failed to detect an invalid (incorrectly ordered) table %v\n", err)
 	}
 
-	fmt.Printf("Pass - test_002\n")
+	Verbose.Printf("Pass - test_202\n")
 
 }
 
 func Test_203(t *testing.T) {
-	fmt.Printf("Test_003 starting \n")
+	fmt.Printf("Test_203 table ReverseEval \n")
 	mytable := new(Table)
 	mytable.Name = "test table"
 	var rv []float64
@@ -259,6 +261,6 @@ func Test_203(t *testing.T) {
 		t.Errorf("ReverseEval() first failed, expected [750.0] got %v", rv)
 	}
 
-	fmt.Printf("Pass - test_003\n")
+	Verbose.Printf("Pass - test_203\n")
 
 }

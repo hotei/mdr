@@ -9,8 +9,6 @@ import (
 	"hash/crc64"
 	"io"
 	"os"
-	"strconv"
-	"strings"
 )
 
 var (
@@ -18,6 +16,9 @@ var (
 )
 
 func init() {
+	Verbose.Printf("mdr.hash.go init() entry\n")
+	defer Verbose.Printf("mdr.hash.go init() exit\n")
+
 	G_crcTable = crc64.MakeTable(crc64.ECMA)
 }
 
@@ -159,28 +160,4 @@ func (r Rec256) Dump() {
 		r.SHA,
 		r.Date,
 		r.Name)
-}
-
-func Split256(line string) (Rec256, error) {
-	var rec Rec256
-	var err error
-	x := strings.Split(line, "|")
-	if len(x) != 4 {
-		fmt.Printf("!ERR--->  found other than 4 parts during split of %q\n", line)
-		return rec, CantCreateRec
-	}
-	rec.Size, err = strconv.ParseInt(strings.Trim(x[0], " \n\t\r"), 10, 64)
-	if err != nil {
-		fmt.Printf("!ERR--->  Cant parse to int64: %s\n", x[0])
-		return rec, CantCreateRec
-	}
-	rec.SHA = strings.Trim(x[1], " \n\t\r")
-	if !ValidHexString(rec.SHA) {
-		fmt.Printf("!ERR--->  %q is not valid hex \n", rec.SHA)
-		return rec, CantCreateRec
-	}
-	rec.Date = strings.Trim(x[2], " \n\t\r")
-	rec.Name = strings.Trim(x[3], " \n\t\r")
-
-	return rec, nil
 }

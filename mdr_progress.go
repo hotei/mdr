@@ -12,14 +12,12 @@ import (
 // keep user entertained while something happens behind the curtain
 //  see example from mdr_test.go for usage
 //  use Spinner() if endpoint of progress is unknown/unknowable
-const (
-	UpdateDelayMs = 200 // delay in millisec between updates
-)
 
 var (
 	// these would normally be C static vars inside Spinner()
-	spinCt   int8
-	lastCall time.Time
+	UpdateDelayMs = 1000 // delay in millisec between updates
+	spinCt        int8
+	lastCall      time.Time
 )
 
 // order is important so preserve it
@@ -43,26 +41,34 @@ func Spinner() {
 
 type ProgStateT struct {
 	id         int
-	label      string
+	Label      string
 	lastBarlen int64
 	val        int64
 	goal       int64
 	endtag     string
+	startedAt  time.Time
+	ShowCount  bool
+	ShowTime   bool
 }
 
 var barWidth = int64(100)
 
 func progUpdater(progState *ProgStateT) {
-	fmt.Fprintf(os.Stderr, "Progress bars:\n")
+	//fmt.Fprintf(os.Stderr, "Progress bars:\n")
 	//     "                                                                                                   1"
 	//     "         1         2         3         4         5         6         7         8         9         0"
 	//     "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
-	bar := "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	nobar := "....................................................................................................."
-
-	var newlen int64
-	if barWidth > int64(len(bar)) {
-		barWidth = int64(len(bar))
+	//mybar := "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	//nobar := "....................................................................................................."
+	//nobar  = "-----------------------------------------------------------------------------------------------------"
+	nobar := strings.Repeat("o", 100)
+	mybar := strings.Repeat("+", 100)
+	var (
+		newlen  int64
+		longest int
+	)
+	if barWidth > int64(len(mybar)) {
+		barWidth = int64(len(mybar))
 	}
 	fmt.Fprintf(os.Stderr, "%s\r", nobar)
 	for {
@@ -71,14 +77,38 @@ func progUpdater(progState *ProgStateT) {
 			return
 		}
 		goal := progState.goal
+		if goal <= 0 {
+			return
+		}
+		if val > goal { // don't exceed 100% completion
+			val = goal
+		}
 		newlen = (val * int64(barWidth)) / goal
-		s := bar[:newlen] + nobar[:barWidth-newlen]
-		fmt.Fprintf(os.Stderr, "%s: %s %s\r", progState.label, s, progState.endtag)
+		s := mybar[:newlen] + nobar[:barWidth-newlen]
+		unitsLeft := goal - val
+		out := fmt.Sprintf("%s %s %s ", progState.Label, s, progState.endtag)
+		if progState.ShowCount {
+			out += fmt.Sprintf("%9d items left => ", unitsLeft)
+		}
+		if progState.ShowTime {
+			elapsed := time.Since(progState.startedAt)
+			elapsedSec := elapsed.Seconds()
+			//fmt.Printf("elapsedSec = %g\n",elapsedSec)
+			currentRate := float64(progState.val) / elapsedSec // elapsed sec / items done so far
+			secToGo := float64(unitsLeft) / currentRate
+			out += fmt.Sprintf("%5d seconds to go ", int(secToGo))
+		}
+		if len(out) > longest {
+			longest = len(out)
+		}
+		fmt.Fprintf(os.Stderr, "%s\r", strings.Repeat(" ", longest))
+		fmt.Fprintf(os.Stderr, "%s\r", out)
+
 		if newlen != progState.lastBarlen {
 			progState.lastBarlen = newlen
 		}
 
-		time.Sleep(time.Millisecond * UpdateDelayMs)
+		time.Sleep(time.Millisecond * time.Duration(UpdateDelayMs))
 	}
 }
 
@@ -88,7 +118,9 @@ func (ps *ProgStateT) Update(val int64) {
 
 func (ps *ProgStateT) Stop() {
 	time.Sleep(time.Second)
-	fmt.Fprintf(os.Stderr, "\nstopping %s: %s\n", ps.label, ps.endtag)
+	if Verbose {
+		fmt.Fprintf(os.Stderr, "\nstopping %s: %s\n\n", ps.Label, ps.endtag)
+	}
 	ps.val = -1
 }
 
@@ -100,8 +132,7 @@ func (ps *ProgStateT) Tag(t string) {
 func OneProgressBar(goal int64) *ProgStateT {
 	var p ProgStateT
 	p.goal = goal
-	p.label = "pbar"
-	fmt.Printf("Created bar as: %v\n", p)
+	p.startedAt = time.Now()
 	go progUpdater(&p)
 	return &p
 }

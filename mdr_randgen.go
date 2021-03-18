@@ -1,9 +1,8 @@
-// mdr_randgen.go (c) 2010-2015 David Rook - all rights reserved
+// mdr_randgen.go (c) 2010-2020 David Rook - all rights reserved
 
 package mdr
 
 import (
-	// standard lib go 1.4.2 pkgs below
 	"fmt"
 	"math"
 	"math/rand"
@@ -12,6 +11,8 @@ import (
 var NormalZtable *Table
 
 func init() {
+	Verbose.Printf("mdr.randgen.go init() entry\n")
+	defer Verbose.Printf("mdr.randgen.go init() exit\n")
 	// table contains : z value, area (ie. probability) to left of z value
 	// upper half of table only, negative values = (1.0 - upper value)
 	// table values could be expanded if it makes sense to do so
@@ -21,37 +22,45 @@ func init() {
 	NormalZtable.Data =
 		[]DblPair{
 			{0.0, 0.5000},
+			{0.1, 0.5398},
+			{0.2, 0.5793},
 			{0.25, 0.5987},
 			{0.5, 0.6915},
 			{0.75, 0.7734},
 			{1.0, 0.8413},
 			{1.5, 0.9332},
 			{2.0, 0.9722},
-			{2.5, 0.9938},
+			{2.4, 0.9938},
 			{3.0, 0.9987},
-			{3.49, 0.9998},
+			{3.4, 0.9997},
+			{3.49, 0.9998}, // last value in table IV of Walpole & Meyers "Prob & Stat for Engrs & Sci"
 			{4.00, 0.99999},
-			{5.00, 0.999995},
-			{6.00, 0.9999966},
-			{60.00, 1.00},
+			{5.00, 0.999999},
+			{6.00, 0.9999999},
+			{8.00, 0.999999999},
+			{25.00, 1.00},
 		}
 }
 
 // GenRandomZNormal returns a float64 with average of 0 and standard deviation of 1.0
 // as implemented the range of values returned will be in [-60..60]
 func GenRandomZNormal() float64 {
-	rnd := 0.5 + (rand.Float64() / 2.0) // should return [.5 .. 1.0]
-	rv, err := NormalZtable.ReverseEval(rnd)
-	if err != nil {
-		Crash(fmt.Sprintf("reverse eval of normalZtable failed with err %v", err))
+	if true {
+		return rand.NormFloat64()
+	} else {
+		rnd := 0.5 + (rand.Float64() / 2.0) // should return [.5 .. 1.0]
+		rv, err := NormalZtable.ReverseEval(rnd)
+		if err != nil {
+			Crash(fmt.Sprintf("reverse eval of normalZtable failed with err %v", err))
+		}
+		if len(rv) > 1 {
+			Crash(fmt.Sprintf("got more than one return value\n"))
+		}
+		if FlipCoin() {
+			rv[0] = -rv[0]
+		}
+		return rv[0]
 	}
-	if len(rv) > 1 {
-		Crash(fmt.Sprintf("got more than one return value\n"))
-	}
-	if FlipCoin() {
-		rv[0] = -rv[0]
-	}
-	return rv[0]
 }
 
 // RandIntBtw endpoints may occur (HasTest widget).

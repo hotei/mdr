@@ -16,8 +16,9 @@ const (
 	ArchiveNoMatchType ArchiveType = iota
 	ArchiveTarType
 	ArchiveZipType
-	ArchiveArkType
+	ArchiveJarType // not quite Zip but similar
 	ArchiveCpioType
+	ArchiveMailboxType
 )
 
 type dispatch struct {
@@ -32,7 +33,7 @@ type patternType struct {
 
 var (
 	dispatcher         = []dispatch{}
-	g_strictZ          = false
+	g_strictZ          = false // .z will return as if .Z unless this is set true
 	collectionPatterns = []patternType{}
 )
 
@@ -40,11 +41,17 @@ var (
 // should match magic numbers but that's a different function
 func WhichArchiveType(s string) ArchiveType {
 	ext := strings.ToLower(filepath.Ext(s))
-	// ArchiveZipType -----------------------------------------
+	// ----------------------------------------- ArchiveZipType
 	if ext == ".zip" {
 		return ArchiveZipType
 	}
-	// ArchiveTarType -----------------------------------------
+
+	// ----------------------------------------- ArchiveJarType
+	if ext == ".jar" {
+		return ArchiveJarType
+	}
+
+	// ----------------------------------------- ArchiveTarType
 	if ext == ".tar" {
 		return ArchiveTarType
 	}
@@ -60,15 +67,16 @@ func WhichArchiveType(s string) ArchiveType {
 	if ext == ".tbz2" {
 		return ArchiveTarType
 	}
-	// ArchiveCpioType -----------------------------------------
+
+	// ----------------------------------------- ArchiveCpioType
 	if ext == ".cpio" {
 		return ArchiveCpioType
 	}
-	// ArchiveArkType -----------------------------------------
-	if ext == ".ark" {
-		return ArchiveArkType
-	}
 
+	// ----------------------------------------- ArchiveMailboxType
+	if ext == ".mbx" {
+		return ArchiveMailboxType
+	}
 	if len(dispatcher) == 0 {
 		Verbose.Printf("Building dispatcher\n")
 		// compressed tar collection
@@ -78,8 +86,6 @@ func WhichArchiveType(s string) ArchiveType {
 		dispatcher = append(dispatcher, dispatch{".*\\Q.tar.bz\\E$", ArchiveTarType})
 		dispatcher = append(dispatcher, dispatch{".*\\Q.tar.bz2\\E$", ArchiveTarType})
 		dispatcher = append(dispatcher, dispatch{".*\\Q.tar.bzip2\\E$", ArchiveTarType})
-		// compressed ark collection
-		dispatcher = append(dispatcher, dispatch{".*\\Q.ark.Z\\E$", ArchiveArkType})
 	}
 
 	nameBytes := []byte(s)
@@ -100,17 +106,25 @@ func WhichArchiveType(s string) ArchiveType {
 
 type CompressType int
 
-const (
+const ( // note: add new types at bottom only!
 	CompressNoMatchType CompressType = iota
 	CompressZipType
 	CompressGzipType
 	CompressBz2Type
 	CompressZcompressType // .Z not common except possibly in Japan
-	CompressPackType      // .z deprecated - very rare in last 20 years
+	CompresszPackType     // .z deprecated - very rare in last 20 years
 	CompressBz1Type       // .bz deprecated - very rare in last 20+ years
+	CompressShrinkType    // found in zip files of old
+	CompressCompactType   // ?? deprecated
+	CompressFreezeType    // ?? deprecated
+	Compress7zType        // new kid on the block
+	CompressXvType        // even newer kid on the block
 )
 
 func init() {
+	Verbose.Printf("mdr.archives.go init() entry\n")
+	defer Verbose.Printf("mdr.archives.go init() exit\n")
+
 	// note that filenames are converted to lowercase before matching takes place
 	// paterns should have longest match possiblity listed first below  (tar.z before .z)
 	///////////////////////////////////////////////////////////////////////////
@@ -173,6 +187,14 @@ func init() {
 	pat = ".*\\Q.tar.bz\\E$" // tar compressed with bz2
 	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
 
+	// file.bz2
+	pat = ".*\\Q.bz2\\E$" // file compressed with bz2
+	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
+
+	// file.bzip2
+	pat = ".*\\Q.\\Ebzip2$" // file compressed with bz2
+	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
+
 	// file.tar.bz2
 	pat = ".*\\Q.tar.bz2\\E$" // tar compressed with bz2
 	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
@@ -181,24 +203,26 @@ func init() {
 	pat = ".*\\Q.\\Etbz2$" // tar compressed with bz2
 	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
 
-	// file.bzip2
-	pat = ".*\\Q.\\Ebzip2$" // tar compressed with bz2
-	collectionPatterns = append(collectionPatterns, patternType{pat, 0})
 }
 
 // examine name to determine compression method used
 // should match magic numbers but that's a different function
 func WhichCompressType(s string) CompressType {
 	origExt := filepath.Ext(s)
-	// note - we don't do the next step because a lot of the .z files we have
-	// found are simply .Z that have been mislabeled, thus strictZ defaults false
-	// if you have the opposite, then set the global true instead
-	// the caller  should test magic header bytes in file body to see which is correct
-	if g_strictZ {
-		if origExt == ".z" {
-			return CompressPackType
+
+	// most .z files we have found are simply .Z that have been mislabeled, thus strictZ defaults false
+	// the caller can also test magic header bytes in file body to see which is correct
+	//   if the CompressZCompressType is returned and decompress fails
+	if origExt == ".z" {
+		if g_strictZ {
+			return CompresszPackType
 		}
+		return CompressZcompressType
 	}
+	if origExt == ".Z" {
+		return CompressZcompressType
+	}
+
 	// unless we have a good reason not to we fold case for the following tests
 	ext := strings.ToLower(origExt)
 	// CompressZipType ---------------------------------
